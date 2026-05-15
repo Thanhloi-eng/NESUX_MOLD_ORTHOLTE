@@ -1,0 +1,3117 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Molding Scan Pro</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600;700&family=IBM+Plex+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --bg:#07101f;--bg2:#0d1a2d;--bg3:#132035;--bg4:#1a2a40;
+  --border:#1e3050;--border2:#243855;
+  --accent:#00cfff;--accent-dim:rgba(0,207,255,.12);
+  --green:#00e87a;--green-dim:rgba(0,232,122,.1);
+  --warn:#ffcc00;--warn-dim:rgba(255,204,0,.1);
+  --orange:#ff8c42;--orange-dim:rgba(255,140,66,.1);
+  --red:#ff3d5a;--red-dim:rgba(255,61,90,.1);
+  --purple:#b06cff;--purple-dim:rgba(176,108,255,.1);
+  --text:#d4e4f7;--text2:#7a9bbf;--text3:#3a5570;
+  --mono:'IBM Plex Mono',monospace;
+  --sans:'IBM Plex Sans',sans-serif;
+  --radius:14px;--radius-sm:8px;
+}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--sans);overflow-x:hidden}
+
+/* ══ HEADER ══ */
+.hdr{
+  position:sticky;top:0;z-index:200;
+  background:rgba(7,16,31,.92);backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--border);
+  padding:10px 16px;display:flex;align-items:center;gap:10px;
+}
+.hdr-logo{
+  font-family:var(--mono);font-size:13px;font-weight:700;
+  color:var(--accent);letter-spacing:2px;
+  display:flex;align-items:center;gap:6px;
+}
+.hdr-logo::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--accent);box-shadow:0 0 8px var(--accent);flex-shrink:0}
+.hdr-spacer{flex:1}
+.conn-pill{
+  display:flex;align-items:center;gap:5px;
+  background:var(--bg3);border:1px solid var(--border);border-radius:20px;
+  padding:4px 10px;font-size:10px;color:var(--text2);font-family:var(--mono);
+}
+.conn-dot{width:5px;height:5px;border-radius:50%;background:var(--red);flex-shrink:0;transition:all .3s}
+.conn-dot.ok{background:var(--green);box-shadow:0 0 6px var(--green)}
+.worker-pill{
+  display:flex;align-items:center;gap:5px;
+  background:var(--accent-dim);border:1px solid rgba(0,207,255,.2);border-radius:20px;
+  padding:4px 10px;font-size:10px;color:var(--accent);font-family:var(--mono);cursor:pointer;
+}
+
+/* ══ NAV TABS ══ */
+.nav{display:flex;background:var(--bg2);border-bottom:1px solid var(--border);padding:0 4px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.nav::-webkit-scrollbar{display:none}
+.nav-btn{
+  flex:0 0 auto;min-width:52px;padding:10px 8px;border:none;background:none;
+  color:var(--text3);font-size:10px;font-weight:700;font-family:var(--sans);
+  cursor:pointer;border-bottom:2px solid transparent;transition:all .15s;
+  display:flex;flex-direction:column;align-items:center;gap:2px;white-space:nowrap;
+}
+.nav-btn.active{color:var(--accent);border-bottom-color:var(--accent)}
+.nav-btn .nb-icon{font-size:16px}
+
+/* ══ PANELS ══ */
+.panel{display:none;padding:12px;min-height:calc(100vh - 110px)}
+.panel.active{display:block}
+
+/* ══ CARDS ══ */
+.card{
+  background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);
+  padding:14px;margin-bottom:12px;
+}
+.card-head{
+  font-family:var(--mono);font-size:9px;font-weight:700;letter-spacing:1.5px;
+  text-transform:uppercase;color:var(--text3);margin-bottom:12px;
+  display:flex;align-items:center;justify-content:space-between;
+}
+.card-head .ch-r{font-size:11px;color:var(--text2);cursor:pointer;letter-spacing:0}
+
+/* ══ INPUTS ══ */
+.field-lbl{font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:5px}
+.inp{
+  width:100%;padding:12px 14px;background:var(--bg3);
+  border:1.5px solid var(--border2);border-radius:var(--radius-sm);
+  color:var(--text);font-size:15px;outline:none;font-family:var(--mono);
+  transition:border-color .15s;-webkit-appearance:none;
+}
+.inp:focus{border-color:var(--accent)}
+.inp.big{font-size:24px;font-weight:700;text-align:center;padding:14px}
+.inp.big:focus{border-color:var(--green);color:var(--green)}
+.inp-wrap{position:relative;margin-bottom:10px}
+.inp-clear{
+  position:absolute;right:10px;top:50%;transform:translateY(-50%);
+  background:none;border:none;color:var(--text3);font-size:18px;cursor:pointer;
+  display:none;padding:4px;line-height:1;
+}
+.scan-inp{
+  padding:13px 40px 13px 14px;font-size:14px;letter-spacing:.5px;
+  border-color:rgba(0,207,255,.2);
+}
+.scan-inp:focus{border-color:var(--accent);background:rgba(0,207,255,.04)}
+
+/* ══ BUTTON ══ */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:6px;
+  padding:12px 20px;border:none;border-radius:var(--radius-sm);
+  font-size:14px;font-weight:700;cursor:pointer;transition:all .15s;font-family:var(--sans);
+}
+.btn:active{transform:scale(.97)}
+.btn-full{width:100%}
+.btn-green{background:var(--green);color:#041810}
+.btn-green:hover{filter:brightness(1.1)}
+.btn-blue{background:var(--accent);color:#021018}
+.btn-ghost{background:var(--bg3);border:1.5px solid var(--border2);color:var(--text2)}
+.btn-ghost:hover{border-color:var(--accent);color:var(--accent)}
+.btn-sm{padding:6px 12px;font-size:11px;border-radius:6px}
+.btn:disabled{opacity:.4;cursor:not-allowed;transform:none!important}
+
+/* ══ PARSED RESULT CARD ══ */
+.result-card{
+  display:none;
+  border:1.5px solid var(--accent);background:rgba(0,207,255,.04);
+  border-radius:var(--radius);padding:14px;margin-bottom:12px;
+}
+.result-card.show{display:block;animation:fadeIn .2s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
+
+/* TYPE BADGE */
+.type-badge{
+  display:inline-flex;align-items:center;gap:5px;
+  font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:.8px;
+  padding:3px 10px;border-radius:20px;margin-bottom:12px;
+}
+.type-single{background:var(--accent-dim);color:var(--accent);border:1px solid rgba(0,207,255,.25)}
+.type-group{background:var(--purple-dim);color:var(--purple);border:1px solid rgba(176,108,255,.25)}
+
+/* META GRID */
+.meta-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.meta-grid.wide{grid-template-columns:1fr}
+.mf{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:8px 10px}
+.mf-l{font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px}
+.mf-v{font-size:14px;font-weight:700;font-family:var(--mono);color:var(--text)}
+.mf-v.c-acc{color:var(--accent)}
+.mf-v.c-pur{color:var(--purple)}
+.mf-v.c-grn{color:var(--green)}
+.mf-v.c-warn{color:var(--warn)}
+
+/* ══ RPRO LIST (group type) ══ */
+.rpro-list{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px}
+.rpro-chip{
+  font-family:var(--mono);font-size:10px;padding:3px 9px;
+  background:var(--purple-dim);border:1px solid rgba(176,108,255,.25);
+  color:var(--purple);border-radius:6px;
+}
+
+/* ══ SIZE TABLE ══ */
+.sz-head{
+  font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:.8px;
+  color:var(--text3);margin-bottom:8px;display:flex;align-items:center;
+  justify-content:space-between;
+}
+.sz-group-title{
+  font-family:var(--mono);font-size:10px;font-weight:700;
+  color:var(--text3);letter-spacing:1px;margin:10px 0 6px;
+  display:flex;align-items:center;gap:6px;
+}
+.sz-group-title::after{content:'';flex:1;height:1px;background:var(--border)}
+.reduce-badge{
+  display:inline-flex;align-items:center;gap:4px;
+  background:var(--orange-dim);border:1px solid rgba(255,140,66,.3);
+  color:var(--orange);font-size:9px;font-weight:700;font-family:var(--mono);
+  padding:1px 7px;border-radius:10px;letter-spacing:.5px;
+}
+
+/* size row */
+.sz-row{
+  display:grid;grid-template-columns:72px 1fr 112px;gap:8px;align-items:center;
+  padding:8px 10px;background:var(--bg3);border:1px solid var(--border);
+  border-radius:8px;margin-bottom:6px;
+}
+.sz-inp-wrap{display:flex;gap:4px;align-items:center;width:112px}
+.sz-inp{
+  flex:1;min-width:0;padding:5px 2px;background:var(--bg4);border:1.5px solid var(--border2);
+  border-radius:6px;color:var(--green);font-size:15px;font-weight:900;
+  font-family:var(--mono);text-align:center;outline:none;width:100%;
+}
+.sz-adj{
+  width:30px;height:36px;flex-shrink:0;border-radius:6px;background:var(--bg4);
+  border:1px solid var(--border2);color:var(--text);font-size:18px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;font-weight:700;
+}
+.sz-inp:focus{border-color:var(--green)}
+.sz-done-num{font-family:var(--mono);font-size:20px;font-weight:900;text-align:center}
+.sz-row.sz-done-row{border-color:rgba(0,232,122,.25);background:rgba(0,232,122,.04)}
+.sz-info{display:flex;flex-direction:column;gap:1px}
+.sz-num{font-family:var(--mono);font-size:15px;font-weight:800;color:var(--text)}
+.sz-order{font-size:10px;color:var(--text2)}
+.sz-bar-wrap{display:flex;flex-direction:column;gap:4px}
+.sz-bar{height:5px;background:rgba(255,255,255,.06);border-radius:3px;overflow:hidden}
+.sz-bar-fill{height:100%;border-radius:3px;transition:width .3s}
+
+/* ══ PROGRESS SUMMARY ══ */
+.prog-total{
+  background:var(--bg3);border:1px solid var(--border2);border-radius:10px;
+  padding:12px;margin-bottom:12px;
+}
+.prog-nums{display:flex;justify-content:space-between;margin-bottom:6px}
+.prog-pct{font-family:var(--mono);font-size:28px;font-weight:900}
+.prog-detail{font-size:11px;color:var(--text2);text-align:right;align-self:flex-end}
+.prog-bar{height:8px;background:rgba(255,255,255,.06);border-radius:4px;overflow:hidden;margin-bottom:8px}
+.prog-fill{height:100%;border-radius:4px;transition:width .4s}
+.thr-row{display:flex;gap:5px;flex-wrap:wrap}
+.thr{
+  font-size:10px;font-weight:700;padding:2px 9px;border-radius:10px;
+  border:1.5px solid var(--border);color:var(--text3);background:rgba(255,255,255,.03);
+  font-family:var(--mono);transition:all .2s;
+}
+.thr.hit.t60{color:var(--warn);border-color:var(--warn);background:var(--warn-dim)}
+.thr.hit.t70{color:var(--orange);border-color:var(--orange);background:var(--orange-dim)}
+.thr.hit.t80{color:var(--red);border-color:var(--red);background:var(--red-dim)}
+.thr.hit.t90{color:var(--purple);border-color:var(--purple);background:var(--purple-dim)}
+.thr.hit.t100{color:var(--green);border-color:var(--green);background:var(--green-dim)}
+
+/* ══ HISTORY ══ */
+.hist-item{
+  padding:10px 0;border-bottom:1px solid rgba(255,255,255,.04);
+}
+.hist-item:last-child{border-bottom:none}
+.hi-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px}
+.hi-mold{font-family:var(--mono);font-size:13px;font-weight:800;color:var(--accent)}
+.hi-pct{font-family:var(--mono);font-size:14px;font-weight:900}
+.hi-meta{font-size:10px;color:var(--text3)}
+.hi-sizes{display:flex;flex-wrap:wrap;gap:4px;margin-top:5px}
+.hi-sz-chip{
+  font-family:var(--mono);font-size:9px;padding:2px 6px;
+  background:var(--bg3);border:1px solid var(--border);border-radius:4px;color:var(--text2);
+}
+.hi-mine{border-left:2px solid var(--accent);padding-left:8px;margin-left:-8px}
+
+/* ══ LOOKUP CARD ══ */
+.lu-result{
+  display:none;margin-top:10px;
+}
+.lu-result.show{display:block}
+.lu-order-chip{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:10px 12px;background:var(--bg3);border:1px solid var(--border);
+  border-radius:8px;margin-bottom:6px;
+}
+.lu-rpro{font-family:var(--mono);font-size:12px;color:var(--accent);font-weight:700}
+.lu-info{font-size:11px;color:var(--text2)}
+
+/* ══ TOAST ══ */
+.toast{
+  position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(60px);
+  border-radius:12px;padding:11px 20px;font-size:13px;font-weight:700;
+  z-index:9999;transition:all .3s;opacity:0;white-space:nowrap;pointer-events:none;
+  font-family:var(--sans);
+}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+.toast.ok{background:rgba(0,232,122,.95);color:#021810;box-shadow:0 4px 20px rgba(0,232,122,.3)}
+.toast.err{background:rgba(255,61,90,.95);color:#fff;box-shadow:0 4px 20px rgba(255,61,90,.3)}
+.toast.info{background:rgba(0,207,255,.95);color:#021018;box-shadow:0 4px 20px rgba(0,207,255,.3)}
+
+/* ══ LOADING SPINNER ══ */
+.spinner{
+  width:18px;height:18px;border:2px solid rgba(255,255,255,.2);
+  border-top-color:var(--accent);border-radius:50%;
+  animation:spin .6s linear infinite;display:inline-block;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ══ EMPTY STATE ══ */
+.empty{
+  text-align:center;padding:40px 20px;
+  color:var(--text3);font-size:13px;
+}
+.empty-icon{font-size:36px;opacity:.3;margin-bottom:8px}
+
+/* MODAL */
+.modal-overlay{
+  display:none;position:fixed;inset:0;z-index:300;
+  background:rgba(0,0,0,.7);backdrop-filter:blur(4px);
+  align-items:center;justify-content:center;padding:16px;
+}
+.modal-overlay.open{display:flex}
+.modal{
+  background:var(--bg2);border:1px solid var(--border2);border-radius:var(--radius);
+  padding:20px;width:100%;max-width:360px;
+}
+.modal-title{font-size:15px;font-weight:700;margin-bottom:14px;color:var(--accent)}
+.modal-row{display:flex;gap:8px;margin-top:10px}
+
+/* DB STATUS BAR */
+.db-bar{
+  background:var(--bg3);border:1px solid var(--border);border-radius:8px;
+  padding:8px 12px;margin-bottom:10px;font-size:11px;color:var(--text2);
+  display:flex;align-items:center;justify-content:space-between;gap:8px;
+}
+.db-stat{display:flex;align-items:center;gap:5px}
+.db-dot{width:6px;height:6px;border-radius:50%;background:var(--text3);flex-shrink:0}
+.db-dot.ok{background:var(--green)}
+
+/* Number step buttons */
+.qty-row{display:flex;gap:8px;align-items:center}
+.qty-adj{
+  width:44px;height:44px;flex-shrink:0;border-radius:8px;
+  background:var(--bg4);border:1.5px solid var(--border2);
+  color:var(--text);font-size:22px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;font-weight:700;
+}
+
+.sz-presets{display:flex;gap:3px;margin-top:4px}
+.sz-preset{font-size:9px;font-weight:800;font-family:var(--mono);padding:1px 7px;border-radius:4px;border:1px solid var(--border2);background:var(--bg4);color:var(--text3);cursor:pointer;}
+.sz-preset:active{background:var(--accent-dim);color:var(--accent);border-color:var(--accent)}
+/* hide html5-qrcode default chrome */
+#qr-reader__header_message,#qr-reader__status_span,#qr-reader__filescan_input,
+#qr-reader__dashboard_section_swaplink,#qr-reader__dashboard{display:none!important}
+#qr-reader{border:none!important;background:transparent!important;}
+#qr-reader video{border-radius:8px;width:100%!important;display:block;}
+#qr-reader__scan_region{background:transparent!important;border:none!important;}
+/* ══ TREND SIZE ══ */
+.trend-bar-row{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.trend-sz-lbl{font-family:var(--mono);font-size:12px;font-weight:700;width:44px;flex-shrink:0;color:var(--text)}
+.trend-bar-outer{flex:1;height:20px;background:rgba(255,255,255,.05);border-radius:4px;overflow:hidden;position:relative}
+.trend-bar-inner{height:100%;border-radius:4px;transition:width .5s;display:flex;align-items:center;padding-left:6px}
+.trend-bar-pct{font-size:10px;font-weight:800;font-family:var(--mono);color:rgba(0,0,0,.75)}
+.trend-qty-lbl{font-family:var(--mono);font-size:11px;color:var(--text2);width:52px;text-align:right;flex-shrink:0}
+
+/* ══ WIP LIVE ══ */
+.wip-row{
+  padding:10px 12px;background:var(--bg3);border:1px solid var(--border);
+  border-radius:8px;margin-bottom:6px;
+}
+.wip-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px}
+.wip-mold{font-family:var(--mono);font-size:13px;font-weight:800;color:var(--accent)}
+.wip-qty{font-family:var(--mono);font-size:14px;font-weight:900;color:var(--green)}
+.wip-meta{font-size:10px;color:var(--text3)}
+.wip-bar-wrap{margin-top:5px}
+.wip-bar{height:4px;background:rgba(255,255,255,.06);border-radius:2px;overflow:hidden}
+.wip-bar-fill{height:100%;border-radius:2px;transition:width .4s}
+
+/* ══ REQUEST MOLD ══ */
+.req-item{
+  padding:10px 12px;background:var(--bg3);border:1px solid var(--border);
+  border-radius:8px;margin-bottom:6px;
+}
+.req-top{display:flex;align-items:center;justify-content:space-between}
+.req-mold{font-family:var(--mono);font-size:12px;font-weight:800;color:var(--purple)}
+.req-status{font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px}
+.req-status.pending{background:var(--warn-dim);color:var(--warn);border:1px solid rgba(255,204,0,.3)}
+.req-status.done{background:var(--green-dim);color:var(--green);border:1px solid rgba(0,232,122,.3)}
+.req-meta{font-size:10px;color:var(--text3);margin-top:3px}
+
+@media(prefers-color-scheme:light){
+  :root{--bg:#f0f5fa;--bg2:#fff;--bg3:#eaf0f8;--bg4:#dde8f2;--border:#c8d8ea;--border2:#b0c8e0;--text:#1a2a3a;--text2:#4a6a85;--text3:#8aabbf}
+}
+
+/* ══ SCAN LOG ══ */
+.scan-log{
+  background:rgba(0,232,122,.06);border:1px solid rgba(0,232,122,.25);
+  border-radius:10px;padding:12px 14px;margin-bottom:10px;
+  animation:fadeIn .2s ease;
+}
+.scan-log-head{font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:.8px;color:var(--green);margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.scan-log-row{font-size:11px;color:var(--text2);margin-top:3px;line-height:1.6}
+.scan-log-row b{color:var(--text);font-family:var(--mono)}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="hdr">
+  <div class="hdr-logo">MOLDING SCAN</div>
+  <div class="hdr-spacer"></div>
+  <div class="conn-pill" id="conn-pill">
+    <span class="conn-dot" id="conn-dot"></span>
+    <span id="conn-lbl">—</span>
+  </div>
+  <div class="worker-pill" id="worker-pill" onclick="openWorkerModal()">
+    🪪 <span id="worker-lbl">Chưa đặt mã</span>
+  </div>
+</div>
+
+<!-- NAV -->
+<div class="nav">
+  <button class="nav-btn active" onclick="setTab('scan',this)">
+    <span class="nb-icon">📷</span>Scan
+  </button>
+  <button class="nav-btn" onclick="setTab('lookup',this)">
+    <span class="nb-icon">🔍</span>Tra cứu
+  </button>
+  <button class="nav-btn" onclick="setTab('hist',this);loadHistory()">
+    <span class="nb-icon">📋</span>Lịch sử
+  </button>
+  <button class="nav-btn" onclick="setTab('wip',this);loadWIP()">
+    <span class="nb-icon">🏭</span>WIP Live
+  </button>
+  <button class="nav-btn" onclick="setTab('trend',this)">
+    <span class="nb-icon">📊</span>Trend
+  </button>
+  <button class="nav-btn" onclick="setTab('gender',this);renderGenderDash()">
+    <span class="nb-icon">👟</span>Gender
+  </button>
+  <button class="nav-btn" onclick="setTab('request',this);loadRequests()">
+    <span class="nb-icon">📦</span>Khuôn
+  </button>
+  <button class="nav-btn" onclick="openSetupWithPw()">
+    <span class="nb-icon">⚙️</span>Cài đặt
+  </button>
+</div>
+
+<!-- ═══════════ PANEL: SCAN ═══════════ -->
+<div class="panel active" id="panel-scan">
+
+  <!-- DB status bar -->
+  <div class="db-bar" id="db-bar">
+    <div class="db-stat">
+      <span class="db-dot" id="db-dot-sched"></span>
+      <span id="db-lbl-sched">Tracking: —</span>
+    </div>
+    <div class="db-stat">
+      <span class="db-dot" id="db-dot-logic"></span>
+      <span id="db-lbl-logic">Logic: —</span>
+    </div>
+    <button class="btn btn-ghost btn-sm" onclick="loadDB()" style="padding:3px 10px">🔄</button>
+  </div>
+
+  <!-- Scan card -->
+  <div class="card">
+    <div class="card-head">📷 Quét QR hoặc nhập thủ công</div>
+
+    <!-- Camera button -->
+    <button class="btn btn-full" id="cam-btn" onclick="toggleCamera()" style="background:linear-gradient(135deg,rgba(0,207,255,.15),rgba(0,207,255,.05));border:1.5px solid rgba(0,207,255,.35);color:var(--accent);font-size:15px;padding:16px;border-radius:10px;margin-bottom:8px;display:flex;align-items:center;justify-content:center;gap:10px;">
+      <span style="font-size:22px" id="cam-icon">📷</span>
+      <span id="cam-btn-lbl">Mở camera scan QR</span>
+    </button>
+    <div id="cam-https-warn" style="display:none;font-size:11px;color:var(--warn);text-align:center;margin:-4px 0 8px;padding:6px 10px;background:var(--warn-dim);border-radius:6px;border:1px solid rgba(255,204,0,.2)">
+      ⚠️ Camera cần HTTPS — đang chạy local. Dùng ô nhập tay bên dưới.
+    </div>
+
+    <!-- Camera viewfinder -->
+    <div id="cam-wrap" style="display:none;margin-bottom:10px;position:relative">
+      <div id="qr-reader" style="width:100%;border-radius:10px;overflow:hidden;background:#000"></div>
+      <div style="position:absolute;top:10px;left:10px;width:26px;height:26px;border-top:3px solid var(--accent);border-left:3px solid var(--accent);border-radius:3px 0 0 0;pointer-events:none"></div>
+      <div style="position:absolute;top:10px;right:10px;width:26px;height:26px;border-top:3px solid var(--accent);border-right:3px solid var(--accent);border-radius:0 3px 0 0;pointer-events:none"></div>
+      <div style="position:absolute;bottom:10px;left:10px;width:26px;height:26px;border-bottom:3px solid var(--accent);border-left:3px solid var(--accent);border-radius:0 0 0 3px;pointer-events:none"></div>
+      <div style="position:absolute;bottom:10px;right:10px;width:26px;height:26px;border-bottom:3px solid var(--accent);border-right:3px solid var(--accent);border-radius:0 0 3px 0;pointer-events:none"></div>
+      <div style="position:absolute;bottom:0;left:0;right:0;padding:5px;text-align:center;font-size:10px;color:var(--accent);font-family:var(--mono);letter-spacing:1px;background:rgba(7,16,31,.65);border-radius:0 0 10px 10px">ĐƯA QR VÀO KHUNG · TỰ NHẬN DIỆN</div>
+    </div>
+    <!-- Reduce info badge (hiện khi đã scan được đơn) -->
+    <div id="cam-reduce-info" style="display:none;margin-bottom:8px"></div>
+
+    <!-- Divider -->
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+      <div style="flex:1;height:1px;background:var(--border)"></div>
+      <span style="font-size:10px;color:var(--text3);font-family:var(--mono)">HOẶC NHẬP THỦ CÔNG</span>
+      <div style="flex:1;height:1px;background:var(--border)"></div>
+    </div>
+
+    <div class="inp-wrap">
+      <input class="inp scan-inp" id="scan-inp"
+        placeholder="Dán / nhập QR text..."
+        autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+        oninput="onScanInput(this.value)">
+      <button class="inp-clear" id="scan-clear" onclick="clearScan()">✕</button>
+    </div>
+    <div style="font-size:10px;color:var(--text3);line-height:1.6">
+      <b style="color:var(--text2)">Dạng 1:</b>
+      <code style="font-size:9px;color:var(--accent);background:var(--bg3);padding:1px 5px;border-radius:4px">RPRO-260407-0296|OV-0229|5.5|QR14|100</code><br>
+      <b style="color:var(--text2)">Dạng 2 (chùm):</b>
+      <code style="font-size:9px;color:var(--purple);background:var(--bg3);padding:1px 5px;border-radius:4px">RPRO-xxx|RPRO-xxx|OV-0277|11|QR23</code>
+    </div>
+  </div>
+
+  <!-- Parsed result -->
+  <div class="result-card" id="result-card">
+
+    <div id="type-badge-wrap"></div>
+
+    <!-- Meta info -->
+    <div class="meta-grid" id="meta-grid"></div>
+
+    <!-- RPRO list (group) -->
+    <div id="rpro-list-wrap" style="display:none">
+      <div class="card-head">Đơn hàng trong nhóm</div>
+      <div class="rpro-list" id="rpro-list"></div>
+    </div>
+
+    <!-- Divider -->
+    <div id="reduce-badge-wrap" style="margin-bottom:10px"></div>
+
+    <!-- SIZE TABLE -->
+    <div class="sz-head">
+      <span>NHẬP SỐ LƯỢNG DONE TỪNG SIZE</span>
+      <span id="sz-count" style="color:var(--text2)"></span>
+    </div>
+    <div style="display:flex;gap:6px;margin-bottom:8px">
+      <button class="btn btn-ghost btn-sm" style="flex:1" onclick="setAllDone(100)">✅ Done tất cả</button>
+      <button class="btn btn-ghost btn-sm" style="flex:1" onclick="setAllDone(0)">↩ Reset</button>
+    </div>
+    <div id="sz-rows"></div>
+
+    <!-- Total progress -->
+    <div class="prog-total" id="prog-total" style="display:none">
+      <div class="prog-nums">
+        <div class="prog-pct" id="prog-pct-lbl" style="color:var(--accent)">0%</div>
+        <div class="prog-detail" id="prog-detail"></div>
+      </div>
+      <div class="prog-bar">
+        <div class="prog-fill" id="prog-fill" style="width:0%"></div>
+      </div>
+      <div class="thr-row">
+        <span class="thr t60" id="thr60">60%</span>
+        <span class="thr t70" id="thr70">70%</span>
+        <span class="thr t80" id="thr80">80%</span>
+        <span class="thr t90" id="thr90">90%</span>
+        <span class="thr t100" id="thr100">✅ 100%</span>
+      </div>
+    </div>
+
+    <button class="btn btn-full btn-green" id="submit-btn" onclick="submitScan()" disabled style="margin-top:4px">
+      ✅ Gửi báo cáo
+    </button>
+  </div>
+
+  <!-- Scan log -->
+  <div id="scan-log-wrap"></div>
+</div><!-- /panel-scan -->
+
+<!-- ═══════════ PANEL: LOOKUP ═══════════ -->
+<div class="panel" id="panel-lookup">
+  <div class="card">
+    <div class="card-head">🔍 Tra cứu đơn hàng</div>
+    <div class="inp-wrap" style="margin-bottom:8px">
+      <input class="inp" id="lu-inp" placeholder="Nhập RPRO hoặc mã khuôn OV-xxxx..."
+        oninput="onLookup(this.value)" autocomplete="off" autocapitalize="off">
+      <button class="inp-clear" id="lu-clear" onclick="document.getElementById('lu-inp').value='';onLookup('');document.getElementById('lu-clear').style.display='none'" style="display:none">✕</button>
+    </div>
+    <div class="lu-result" id="lu-result"></div>
+  </div>
+</div>
+
+<!-- ═══════════ PANEL: HISTORY ═══════════ -->
+<div class="panel" id="panel-hist">
+  <div class="card">
+    <div class="card-head">
+      Lịch sử scan
+      <span class="ch-r" onclick="loadHistory()">🔄 Refresh</span>
+    </div>
+    <div style="display:flex;gap:6px;margin-bottom:10px">
+      <input class="inp" id="hist-filter" placeholder="Lọc: mold, mã NV, RPRO..."
+        style="flex:1;font-size:13px;padding:8px 10px"
+        oninput="filterHistory(this.value)">
+      <button class="btn btn-ghost btn-sm" onclick="filterHistory('me')">👤 Tôi</button>
+    </div>
+    <div id="hist-list"><div class="empty"><div class="empty-icon">📋</div>Đang tải...</div></div>
+  </div>
+</div>
+
+<!-- ═══════════ PANEL: WIP LIVE ═══════════ -->
+<div class="panel" id="panel-wip">
+  <div class="card">
+    <div class="card-head">
+      🏭 Qty Molding Live — WIP In Molding
+      <span class="ch-r" onclick="loadWIP()">🔄</span>
+    </div>
+    <div style="display:flex;gap:6px;margin-bottom:10px;align-items:center">
+      <input class="inp" id="wip-filter" placeholder="Lọc mold, RPRO..."
+        style="flex:1;font-size:13px;padding:8px 10px" oninput="filterWIP(this.value)">
+      <select class="inp" id="wip-sort" style="width:120px;font-size:12px;padding:8px 6px"
+        onchange="filterWIP(document.getElementById('wip-filter').value)">
+        <option value="pct_desc">% ↓ cao nhất</option>
+        <option value="pct_asc">% ↑ thấp nhất</option>
+        <option value="qty_desc">Qty ↓</option>
+        <option value="time_desc">Mới nhất</option>
+      </select>
+    </div>
+    <div id="wip-list"><div class="empty"><div class="empty-icon">🏭</div>Nhấn 🔄 để tải</div></div>
+  </div>
+</div>
+
+<!-- ═══════════ PANEL: TREND SIZE ═══════════ -->
+<div class="panel" id="panel-trend">
+  <div class="card">
+    <div class="card-head">📊 Trend Size by Section (đơn hiện tại)</div>
+    <div style="display:flex;gap:6px;margin-bottom:8px">
+      <input class="inp" id="trend-rpro-inp" placeholder="RPRO-XXX/RPRO-YYY/... hoặc mã khuôn"
+        style="flex:1;font-size:13px;padding:8px 10px"
+        oninput="onTrendInput(this.value)" autocapitalize="off">
+      <button class="btn btn-ghost btn-sm" onclick="clearTrend()">✕</button>
+    </div>
+    <!-- ── Section filter (LAM / PRE / MOLD) ── -->
+    <div id="trend-sec-filter" style="display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap">
+      <button type="button" class="trend-sec-btn active" data-sec="LAM" onclick="toggleTrendSec(this)"
+        style="flex:1;min-width:90px;font-family:var(--mono);font-size:11px;font-weight:700;padding:7px 8px;border-radius:8px;cursor:pointer;border:1px solid var(--border2);background:var(--bg3);color:var(--text2)">
+        🟡 WIP SAU LAM
+      </button>
+      <button type="button" class="trend-sec-btn active" data-sec="PRE" onclick="toggleTrendSec(this)"
+        style="flex:1;min-width:90px;font-family:var(--mono);font-size:11px;font-weight:700;padding:7px 8px;border-radius:8px;cursor:pointer;border:1px solid var(--border2);background:var(--bg3);color:var(--text2)">
+        🟠 WIP SAU PRE
+      </button>
+      <button type="button" class="trend-sec-btn active" data-sec="MOLD" onclick="toggleTrendSec(this)"
+        style="flex:1;min-width:90px;font-family:var(--mono);font-size:11px;font-weight:700;padding:7px 8px;border-radius:8px;cursor:pointer;border:1px solid var(--border2);background:var(--bg3);color:var(--text2)">
+        🔵 WIP MOLDING
+      </button>
+    </div>
+    <div id="trend-result"><div class="empty" style="padding:24px 0">
+      <div class="empty-icon">📊</div>Nhập RPRO hoặc mold để xem phân bổ size
+    </div></div>
+  </div>
+
+  <!-- ── QTY MOLD LIVE — copy V19 trend size by section, realtime từ scan_records ── -->
+  <div class="card" id="trend-live-card" style="display:none">
+    <div class="card-head" style="display:flex;align-items:center;gap:6px">
+      🏭 QTY MOLD LIVE theo Size <span style="font-size:9px;color:var(--green);font-family:var(--mono);background:var(--green-dim);padding:2px 6px;border-radius:10px">● LIVE</span>
+      <span style="flex:1"></span>
+      <span class="ch-r" onclick="reloadTrendLive()" style="cursor:pointer">🔄</span>
+    </div>
+    <div id="trend-live-body"><div class="empty" style="padding:14px 0;font-size:11px">Đang tải scan_records…</div></div>
+  </div>
+
+  <div class="card" id="trend-section-card" style="display:none">
+    <div class="card-head" id="trend-section-title">PHÂN BỔ SIZE THEO SECTION</div>
+    <div id="trend-section-body"></div>
+  </div>
+</div>
+
+<style>
+.trend-sec-btn.active[data-sec="LAM"]{background:var(--warn-dim)!important;border-color:var(--warn)!important;color:var(--warn)!important}
+.trend-sec-btn.active[data-sec="PRE"]{background:var(--orange-dim)!important;border-color:var(--orange)!important;color:var(--orange)!important}
+.trend-sec-btn.active[data-sec="MOLD"]{background:var(--accent-dim)!important;border-color:var(--accent)!important;color:var(--accent)!important}
+.trend-live-row{display:flex;align-items:center;gap:8px;margin-bottom:6px;padding:6px 8px;background:var(--bg3);border:1px solid var(--border);border-radius:6px}
+.trend-live-sz{font-family:var(--mono);font-size:11px;font-weight:800;color:var(--text);min-width:60px}
+.trend-live-bar{flex:1;height:14px;background:rgba(255,255,255,.05);border-radius:3px;overflow:hidden;position:relative}
+.trend-live-bar-in{height:100%;border-radius:3px;transition:width .4s}
+.trend-live-qty{font-family:var(--mono);font-size:10px;font-weight:700;min-width:90px;text-align:right;color:var(--text2)}
+</style>
+
+<!-- ═══════════ PANEL: REQUEST MOLD ═══════════ -->
+<div class="panel" id="panel-request">
+  <div class="card">
+    <div class="card-head">📦 Yêu cầu thêm khuôn size — Out WIP</div>
+    <div class="field-lbl">Mã khuôn cần thêm</div>
+    <input class="inp" id="req-mold-inp" placeholder="VD: OV-0229" style="margin-bottom:8px"
+      oninput="this.value=this.value.toUpperCase()" autocapitalize="characters">
+    <div class="field-lbl">Size cần thêm khuôn</div>
+    <input class="inp" id="req-size-inp" placeholder="VD: 9, 9.5, 10" style="margin-bottom:8px"
+      inputmode="decimal">
+    <div class="field-lbl">Lý do / Ghi chú</div>
+    <input class="inp" id="req-note-inp" placeholder="VD: Khuôn bị hỏng, thiếu qty..." style="margin-bottom:10px">
+    <button class="btn btn-full btn-green" onclick="submitRequest()">📤 Gửi yêu cầu khuôn</button>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      Danh sách yêu cầu
+      <span class="ch-r" onclick="loadRequests()">🔄</span>
+    </div>
+    <div style="display:flex;gap:6px;margin-bottom:8px">
+      <button class="btn btn-ghost btn-sm" style="flex:1" onclick="filterReqs('all')">Tất cả</button>
+      <button class="btn btn-ghost btn-sm" style="flex:1" onclick="filterReqs('pending')">⏳ Chờ</button>
+      <button class="btn btn-ghost btn-sm" style="flex:1" onclick="filterReqs('done')">✅ Xong</button>
+    </div>
+    <div id="req-list"><div class="empty"><div class="empty-icon">📦</div>Đang tải...</div></div>
+  </div>
+</div>
+
+<!-- ═══════════ PANEL: TD GENDER DASHBOARD ═══════════ -->
+<div class="panel" id="panel-gender">
+  <div class="card">
+    <div class="card-head">
+      👟 TD Gender Dashboard — WIP Orders
+      <span class="ch-r" onclick="renderGenderDash()">🔄</span>
+    </div>
+    <div id="gender-kpi" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px"></div>
+    <div id="gender-stage" style="margin-bottom:12px"></div>
+    <div id="gender-list"></div>
+  </div>
+</div>
+
+<!-- ═══════════ PANEL: SETUP ═══════════ -->
+<div class="panel" id="panel-setup">
+  <div class="card">
+    <div class="card-head">🪪 Mã số nhân viên</div>
+    <div class="field-lbl">Mã số nhân viên</div>
+    <div class="qty-row" style="margin-bottom:0">
+      <input class="inp" id="setup-worker" placeholder="VD: 00123"
+        type="text" inputmode="numeric" maxlength="20"
+        style="flex:1;letter-spacing:3px;font-family:var(--mono);font-size:18px">
+      <button class="btn btn-blue" onclick="saveWorker()">Lưu</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">🔌 Kết nối & Dữ liệu</div>
+    <div style="font-size:12px;color:var(--text2);margin-bottom:10px;line-height:1.7">
+      <div>Supabase: <span style="font-family:var(--mono);font-size:10px;color:var(--text3)">xshapoewvuqykmaflmdc</span></div>
+      <div id="setup-db-status"></div>
+    </div>
+    <button class="btn btn-ghost btn-full" onclick="loadDB()">🔄 Tải lại dữ liệu tracking</button>
+  </div>
+
+  <div class="card">
+    <div class="card-head">📖 Hướng dẫn</div>
+    <div style="font-size:12px;color:var(--text2);line-height:1.8">
+      <b style="color:var(--accent)">Dạng 1 — Đơn lẻ (1 RPRO):</b><br>
+      <code style="font-size:10px;color:var(--green);display:block;background:var(--bg3);padding:6px 8px;border-radius:6px;margin:4px 0">RPRO-260407-0296|OV-0229|5.5|QR14|100</code>
+      → 1 RPRO · Mold · Size · QR# · Qty/label<br><br>
+      <b style="color:var(--purple)">Dạng 2 — Chùm (nhiều RPRO):</b><br>
+      <code style="font-size:10px;color:var(--purple);display:block;background:var(--bg3);padding:6px 8px;border-radius:6px;margin:4px 0">RPRO-xxx|RPRO-xxx|OV-0277|11|QR23</code>
+      → Nhiều RPRO cùng khuôn · qty/label · QR#<br><br>
+      App tự động:<br>
+      • Lấy size từ tracking list Supabase<br>
+      • Tính hạ size -1.5 cho Women/Woven<br>
+      • Group size theo khuôn OVN<br>
+      • Nhập done từng size → tính % ngưỡng<br>
+      • Gửi lên Supabase → Molding v19 thấy ngay
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">🗄 Tạo bảng Supabase (lần đầu)</div>
+    <div style="font-size:11px;color:var(--text2);margin-bottom:8px;line-height:1.6">
+      Nếu gặp lỗi <b style="color:var(--red)">"Could not find the table"</b>, chạy SQL này trong Supabase → SQL Editor:
+    </div>
+    <pre id="sql-snippet" style="font-size:9px;color:var(--green);background:var(--bg4);padding:10px;border-radius:8px;overflow-x:auto;white-space:pre-wrap;border:1px solid var(--border);line-height:1.5;cursor:pointer" onclick="copySql()">-- Chạy trong Supabase > SQL Editor
+CREATE TABLE IF NOT EXISTS public.scan_records (
+  id bigserial PRIMARY KEY,
+  mold_code text, rpro_code text, size_label text,
+  qr_num text, qty_done int, qty_order int, pct int,
+  worker_name text, shift_name text, scan_type text, rpro_group text,
+  scanned_at timestamptz DEFAULT now()
+);
+-- Nếu bảng đã tồn tại, thêm cột shift_name (chạy an toàn):
+ALTER TABLE public.scan_records ADD COLUMN IF NOT EXISTS shift_name text;
+CREATE TABLE IF NOT EXISTS public.mold_requests (
+  id bigserial PRIMARY KEY,
+  mold_code text, size_label text, note text,
+  worker_name text, status text DEFAULT 'pending',
+  created_at timestamptz DEFAULT now(),
+  resolved_at timestamptz
+);
+ALTER TABLE public.scan_records ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.mold_requests ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "anon_all_scan" ON public.scan_records FOR ALL TO anon USING (true) WITH CHECK (true);
+CREATE POLICY "anon_all_req" ON public.mold_requests FOR ALL TO anon USING (true) WITH CHECK (true);</pre>
+    <button class="btn btn-ghost btn-full btn-sm" onclick="copySql()" style="margin-top:6px">📋 Copy SQL</button>
+  </div>
+
+  <div class="card">
+    <div class="card-head">🗑 Công cụ</div>
+    <button class="btn btn-ghost btn-full" onclick="clearHistory()">Xóa lịch sử scan local</button>
+  </div>
+</div>
+
+<!-- WORKER MODAL -->
+<div class="modal-overlay" id="worker-modal">
+  <div class="modal">
+    <div class="modal-title">🪪 Nhập mã số nhân viên</div>
+    <div class="field-lbl">Mã số nhân viên</div>
+    <input class="inp big" id="modal-worker-inp"
+      placeholder="VD: 8475"
+      type="text" inputmode="numeric" maxlength="20"
+      style="margin-bottom:8px;letter-spacing:4px;text-align:center">
+    <div style="font-size:11px;color:var(--text3);text-align:center;margin-bottom:12px">Mã này ghi vào mỗi lần scan</div>
+
+    <div class="field-lbl">Ca làm việc</div>
+    <div id="shift-btns" style="display:flex;gap:8px;margin-bottom:14px">
+      <button id="shift-s1" class="btn btn-ghost" style="flex:1;padding:10px 6px;font-size:13px;font-weight:800;font-family:var(--mono)" onclick="selectShift('S1')">☀️ S1</button>
+      <button id="shift-s2" class="btn btn-ghost" style="flex:1;padding:10px 6px;font-size:13px;font-weight:800;font-family:var(--mono)" onclick="selectShift('S2')">🌤 S2</button>
+      <button id="shift-s3" class="btn btn-ghost" style="flex:1;padding:10px 6px;font-size:13px;font-weight:800;font-family:var(--mono)" onclick="selectShift('S3')">🌙 S3</button>
+    </div>
+
+    <div class="modal-row">
+      <button class="btn btn-ghost" style="flex:1" onclick="closeWorkerModal()">Hủy</button>
+      <button class="btn btn-blue" style="flex:1" onclick="saveWorkerFromModal()">✅ Xác nhận</button>
+    </div>
+  </div>
+</div>
+
+<!-- SETUP PASSWORD MODAL -->
+<div class="modal-overlay" id="setup-pw-modal">
+  <div class="modal">
+    <div class="modal-title">🔒 Xác nhận mật khẩu</div>
+    <div class="field-lbl">Mật khẩu cài đặt</div>
+    <input class="inp big" id="setup-pw-inp"
+      placeholder="••••"
+      type="password" inputmode="numeric" maxlength="10"
+      style="margin-bottom:8px;letter-spacing:6px;text-align:center"
+      onkeydown="if(event.key==='Enter')checkSetupPw()">
+    <div id="setup-pw-err" style="font-size:11px;color:var(--red);text-align:center;min-height:16px;margin-bottom:6px"></div>
+    <div class="modal-row">
+      <button class="btn btn-ghost" style="flex:1" onclick="document.getElementById('setup-pw-modal').classList.remove('open')">Hủy</button>
+      <button class="btn btn-blue" style="flex:1" onclick="checkSetupPw()">🔓 Mở</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ══════════════════════════════════════════════════════════
+//  MOLDING SCAN PRO — Full Logic Port từ Molding v19
+// ══════════════════════════════════════════════════════════
+
+const SUPABASE_URL = 'https://xshapoewvuqykmaflmdc.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhzaGFwb2V3dnVxeWttYWZsbWRjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQyNzY2MDksImV4cCI6MjA4OTg1MjYwOX0.KPK3jma0gHKrP6FIr3anhNsceKReuQCIn5iyhGDiH7s';
+const WOMEN_SHIFT = 1.5;
+
+// ── State ──────────────────────────────────────────────────
+let _sb = null;
+let _worker = localStorage.getItem('sc_worker') || '';
+let _shift  = localStorage.getItem('sc_shift')  || '';   // 'S1' | 'S2' | 'S3'
+const WIP_STATUSES = ['3.WIP SAU LAMINATION','4.WIP SAU PREFITTING','5.WIP IN MOLDING'];
+let _db = { orders:[], khuon_inventory:{}, logic_reduce_composite:{}, logic_reduce_index:{}, live_status:{} };
+let _rtChannel = null;
+let _parsed = null;   // current parsed QR result
+let _doneMap = {};    // sizeLabel → qty done (editable by user)
+let _orderMap = {};   // sizeLabel → qty order (for proportional distribute + progress)
+let _grpMap = {};     // groupKey → { label, sizes:[sz...], total }  (Scan grouped rows)
+
+// ── Supabase init ──────────────────────────────────────────
+function initSb() {
+  try {
+    if (window.supabase) {
+      _sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {auth:{persistSession:false}});
+      setConn(true);
+      loadDB();
+      subscribeRealtime();
+    }
+  } catch(e) { setConn(false); }
+}
+setTimeout(initSb, 200);
+
+// ── Realtime subscribe shared_datasets (mirror v19) ────────
+function subscribeRealtime() {
+  if (!_sb) return;
+  if (_rtChannel) { _rtChannel.unsubscribe(); _rtChannel = null; }
+  _rtChannel = _sb.channel('shared_datasets_rt')
+    .on('postgres_changes',
+      { event: '*', schema: 'public', table: 'shared_datasets' },
+      (payload) => {
+        try {
+          const row = payload.new || payload.old;
+          if (!row) return;
+          const p = typeof row.payload === 'string' ? JSON.parse(row.payload) : row.payload;
+          if (row.name === 'schedule' && p?.orders) {
+            _db.orders = p.orders.filter(o => WIP_STATUSES.includes(o.status));
+            updateDBStatusBar();
+            // ── Auto-link Trend khi V19 update ──
+            try{
+              const tv = document.getElementById('trend-rpro-inp');
+              if(tv && (tv.value||'').trim().length>=3 && typeof onTrendInput==='function'){
+                onTrendInput(tv.value);
+              }
+            }catch(_){}
+          } else if (row.name === 'khuon' && p?.khuon_inventory) {
+            _db.khuon_inventory = p.khuon_inventory;
+          } else if (row.name === 'logic') {
+            if (p?.logic_reduce_composite) _db.logic_reduce_composite = p.logic_reduce_composite;
+            if (p?.logic_reduce_index)     _db.logic_reduce_index     = p.logic_reduce_index;
+          } else if (row.name === 'live' && p?.live_status) {
+            _db.live_status = p.live_status;
+            // ── Auto-reload Trend Live khi V19 cập nhật live_status ──
+            try {
+              if (_trendLiveQuery && typeof loadTrendLive === 'function') {
+                clearTimeout(window._liveStatusReloadT);
+                window._liveStatusReloadT = setTimeout(() => loadTrendLive(), 500);
+              }
+            } catch(_) {}
+          }
+        } catch(e) { console.warn('realtime parse:', e); }
+      })
+    .subscribe();
+}
+
+function updateDBStatusBar() {
+  document.getElementById('db-lbl-sched').textContent = `Tracking: ${_db.orders.length} WIP`;
+  setDot('sched','ok');
+}
+
+function setConn(ok) {
+  document.getElementById('conn-dot').className = 'conn-dot' + (ok?' ok':'');
+  document.getElementById('conn-lbl').textContent = ok ? 'Online' : 'Offline';
+}
+
+// ── Load data from Supabase shared_datasets ────────────────
+async function loadDB() {
+  if (!_sb) { toast('Chưa kết nối Supabase', 'err'); return; }
+  setDot('sched','loading');
+  setDot('logic','loading');
+  try {
+    const { data, error } = await _sb.from('shared_datasets')
+      .select('name,payload')
+      .in('name', ['schedule','khuon','logic','live']);
+    if (error) throw error;
+
+    for (const row of (data||[])) {
+      if (row.name === 'schedule' && row.payload?.orders) {
+        // CHỈ lấy 3 WIP statuses như v19
+        _db.orders = row.payload.orders.filter(o => WIP_STATUSES.includes(o.status));
+        setDot('sched','ok');
+        document.getElementById('db-lbl-sched').textContent = `Tracking: ${_db.orders.length} WIP`;
+      }
+      if (row.name === 'khuon' && row.payload?.khuon_inventory) {
+        _db.khuon_inventory = row.payload.khuon_inventory;
+      }
+      if (row.name === 'logic' && row.payload) {
+        _db.logic_reduce_composite = row.payload.logic_reduce_composite || {};
+        _db.logic_reduce_index     = row.payload.logic_reduce_index || {};
+        setDot('logic','ok');
+        document.getElementById('db-lbl-logic').textContent = `Logic: OK`;
+      }
+      // live_status — dùng làm fallback cho findOvnInventory (deriveInvFromLiveStatus)
+      if (row.name === 'live' && row.payload?.live_status) {
+        _db.live_status = row.payload.live_status;
+      }
+    }
+    const khuonCount = Object.keys(_db.khuon_inventory).length;
+    document.getElementById('setup-db-status').innerHTML =
+      `<span style="color:var(--green)">✅ ${_db.orders.length} WIP · Khuôn: ${khuonCount} · Logic ✓</span>`;
+    toast(`Đã tải ${_db.orders.length} WIP đơn`, 'ok');
+  } catch(e) {
+    setDot('sched','err'); setDot('logic','err');
+    toast('Lỗi tải dữ liệu: ' + e.message, 'err');
+  }
+}
+
+function setDot(id, state) {
+  const d = document.getElementById('db-dot-'+id);
+  if (!d) return;
+  if (state==='ok') { d.className='db-dot ok'; }
+  else if (state==='loading') { d.style.background='var(--warn)'; }
+  else { d.style.background='var(--red)'; }
+}
+
+// ══════════════════════════════════════════════════════════
+// QR PARSE — hỗ trợ cả 2 dạng
+// Dạng 1 (đơn): RPRO-260407-0296|OV-0229|5.5|QR14|100
+// Dạng 2 (chùm): RPRO-xxx|RPRO-xxx|...|OV-0277|11|QR23
+// ══════════════════════════════════════════════════════════
+function parseQR(raw) {
+  const s = raw.trim().replace(/\n/g, '|');
+  if (!s) return null;
+
+  const parts = s.split('|').map(p => p.trim()).filter(Boolean);
+  if (parts.length < 3) return null;
+
+  // Tách RPRO codes (bắt đầu bằng RPRO-)
+  const rproList = [];
+  let moldIdx = -1;
+  for (let i = 0; i < parts.length; i++) {
+    if (/^RPRO-/i.test(parts[i])) {
+      rproList.push(parts[i].toUpperCase());
+    } else if (/^O[VES]-\d{4}/i.test(parts[i]) || /^[A-Z]{2}-\d{3,6}/i.test(parts[i])) {
+      moldIdx = i;
+      break;
+    }
+  }
+  if (moldIdx < 0 || rproList.length === 0) return null;
+
+  const mold = parts[moldIdx].toUpperCase();
+  const remaining = parts.slice(moldIdx + 1);
+
+  // Dạng 1: sau mold còn size | QRxx | qty  (khi chỉ 1 RPRO)
+  // Dạng 2: sau mold còn qty_per_label | QRxx (khi nhiều RPRO hoặc size không rõ)
+
+  let size = null, qrNum = '?', qtyLabel = 0;
+  const type = rproList.length > 1 ? 'group' : 'single';
+
+  if (type === 'single') {
+    // RPRO-xxx|OV-0229|5.5|QR14|100
+    // remaining = ['5.5','QR14','100']
+    for (const p of remaining) {
+      if (/^QR\d+$/i.test(p)) { qrNum = p.replace(/^QR/i,''); continue; }
+      if (!isNaN(parseFloat(p)) && parseFloat(p) < 20 && size === null) { size = p; continue; }
+      if (!isNaN(parseInt(p)) && parseInt(p) >= 1) { qtyLabel = parseInt(p); }
+    }
+  } else {
+    // RPRO-xxx|RPRO-xxx|OV-0277|11|QR23
+    // remaining = ['11','QR23']
+    for (const p of remaining) {
+      if (/^QR\d+$/i.test(p)) { qrNum = p.replace(/^QR/i,''); continue; }
+      if (!isNaN(parseInt(p)) && parseInt(p) >= 1) { qtyLabel = parseInt(p); }
+    }
+    size = null; // group type không có size cụ thể trên QR
+  }
+
+  return { type, rproList, mold, size, qrNum, qtyLabel };
+}
+
+// ══════════════════════════════════════════════════════════
+// FIND ORDERS — tìm đơn theo RPRO hoặc Mold
+// ══════════════════════════════════════════════════════════
+function findOrderByRpro(rpro) {
+  return _db.orders.find(o => (o.rpro||'').toUpperCase() === rpro.toUpperCase());
+}
+function findOrdersByMold(mold) {
+  const mc = extractMoldCode(mold);
+  return _db.orders.filter(o => moldCodesMatch(o.mold_type || '', mold));
+}
+
+// ══════════════════════════════════════════════════════════
+// MOLD HELPERS (ported from v19)
+// ══════════════════════════════════════════════════════════
+function extractMoldCode(str) {
+  if (!str) return '';
+  const s = String(str).trim();
+  const m = s.match(/^([A-Za-z]{2,3}-\d{2,6})/);
+  if (m) return m[1].toUpperCase();
+  const m2 = s.match(/^([A-Za-z]+-[\d]+)/);
+  if (m2) return m2[1].toUpperCase();
+  return s.toUpperCase();
+}
+function extractMoldNumber(str) {
+  const code = extractMoldCode(str);
+  const m = code.match(/-(\d+)$/);
+  return m ? String(parseInt(m[1],10)) : '';
+}
+function moldCodesMatch(a, b) {
+  if (!a || !b) return false;
+  const ca = extractMoldCode(a), cb = extractMoldCode(b);
+  if (ca === cb) return true;
+  const norm = s => s.replace(/([A-Z]+-?)0+(\d)/g,'$1$2');
+  if (norm(ca) === norm(cb)) return true;
+  const na = extractMoldNumber(a), nb = extractMoldNumber(b);
+  return !!(na && nb && na === nb);
+}
+
+// ══════════════════════════════════════════════════════════
+// SIZE REDUCE LOGIC (matching v19)
+// ══════════════════════════════════════════════════════════
+function isWomenGender(g) {
+  if (!g) return false;
+  const s = String(g).trim().toUpperCase();
+  return /WOMEN|WOMAN|WOWEN|LADY|LADIES|FEMALE|GIRL/.test(s) || s==='W' || s==='F' || s==='WMN';
+}
+function isMenGender(g) {
+  if (!g) return false;
+  const s = String(g).trim().toUpperCase();
+  if (isWomenGender(g)) return false;
+  return /(^|[^A-Z])MEN([^A-Z]|$)|MALE|^MAN$|^BOY$/.test(s) || s==='M';
+}
+function isUnisexGender(g) {
+  if (!g) return false;
+  return /UNI|UX/.test(String(g).toUpperCase());
+}
+function genderBadge(g) {
+  if (!g) return '<span style="color:var(--text3);font-size:11px">—</span>';
+  const label = String(g).trim();
+  let bg, fg;
+  if (isWomenGender(g))      { bg='rgba(255,107,157,.18)'; fg='#ff6b9d'; }
+  else if (isUnisexGender(g)){ bg='rgba(155,128,255,.18)'; fg='#9b80ff'; }
+  else if (isMenGender(g))   { bg='rgba(116,185,255,.18)'; fg='#74b9ff'; }
+  else                       { bg='rgba(255,255,255,.06)'; fg='#999'; }
+  return `<span style="background:${bg};color:${fg};border:1px solid ${fg}55;border-radius:4px;padding:2px 7px;font-size:11px;font-weight:700;font-family:var(--mono);white-space:nowrap">${label}</span>`;
+}
+function getReduceNote(customer, moldType, gender) {
+  if (!_db.logic_reduce_composite || !moldType) return null;
+  const ck = (String(customer||'')+'|'+String(moldType||'')+'|'+String(gender||'')).toUpperCase();
+  const note = _db.logic_reduce_composite[ck];
+  if (note) return note==='HA'?'HẠ':note;
+  if (_db.logic_reduce_index) {
+    const arr = _db.logic_reduce_index[String(moldType).toUpperCase()] || [];
+    const gUp = String(gender||'').toUpperCase();
+    const m = arr.find(r => r.gender.toUpperCase()===gUp);
+    if (m) return m.note==='HA'?'HẠ':m.note;
+  }
+  return null;
+}
+// Trả về loại reduce: 'HA' | 'DEFAULT' | 'WOVEN_FALLBACK' | null — đồng bộ v19
+function getReduceType(customer, moldType, gender) {
+  const note = getReduceNote(customer, moldType, gender);
+  if (note === 'HẠ') return 'HA';
+  if (note === 'DEFAULT') return 'DEFAULT';
+  if (isWomenGender(gender)) return 'WOVEN_FALLBACK';
+  return null;
+}
+function shouldReduceSize(customer, moldType, gender) {
+  const note = getReduceNote(customer, moldType, gender);
+  if (note==='HẠ') return true;
+  if (note==='DEFAULT') return false;
+  return isWomenGender(gender);
+}
+function applyReduceShift(sizes) {
+  const out = {};
+  for (const [k, v] of Object.entries(sizes)) {
+    const n = parseFloat(k);
+    if (isNaN(n)) { out[k] = (out[k]||0) + v; continue; }
+    const shifted = Math.max(0, n - WOMEN_SHIFT);
+    const newKey = String(shifted);
+    out[newKey] = (out[newKey]||0) + v;
+  }
+  return out;
+}
+
+// ══════════════════════════════════════════════════════════
+// SIZE GROUP LOGIC (ported from v19)
+// ══════════════════════════════════════════════════════════
+function sizeMatchesGroup(sNum, groupLabel) {
+  const clean = String(groupLabel).replace(/#/g,'').trim();
+  if (clean.includes('-')) {
+    const p = clean.split('-');
+    const lo=parseFloat(p[0]),hi=parseFloat(p[1]),s=parseFloat(sNum);
+    return !isNaN(lo)&&!isNaN(hi)&&s>=lo&&s<=hi;
+  }
+  return Math.abs(parseFloat(clean)-parseFloat(sNum))<0.01;
+}
+function isGroupedMold(inv) {
+  if (!inv) return false;
+  return Object.keys(inv).some(k => {
+    const c=k.replace(/#/g,'').trim(),p=c.split('-');
+    return p.length===2&&!isNaN(parseFloat(p[0]))&&!isNaN(parseFloat(p[1]));
+  });
+}
+function mapSizeToGroup(sNum, inv) {
+  for (const gl of Object.keys(inv)) if (sizeMatchesGroup(sNum,gl)) return gl;
+  const s1=sNum+0.5;
+  for (const gl of Object.keys(inv)) if (sizeMatchesGroup(s1,gl)) return gl;
+  const s2=sNum-0.5;
+  for (const gl of Object.keys(inv)) if (sizeMatchesGroup(s2,gl)) return gl;
+  return null;
+}
+
+// ══════════════════════════════════════════════════════════
+// SHARED: group a sizes map {sz:qty} by mold's OVN inventory.
+// Mirrors Trend (renderTrend) logic — single-size molds keep raw size,
+// grouped molds (3-SIZE) collapse to group label like "3.5-4.5".
+// Returns [{label, sizes:[{sz,qty}], total, isGrouped}] sorted by lo-bound.
+// ══════════════════════════════════════════════════════════
+function groupSizesByMold(mold, sizesObj) {
+  const { inv } = findOvnInventory(mold || '');
+  const grouped = inv ? isGroupedMold(inv) : false;
+  const buckets = {};
+  const order = [];
+  const keys = Object.keys(sizesObj || {}).sort((a,b)=>parseFloat(a)-parseFloat(b));
+  for (const sk of keys) {
+    const qty = sizesObj[sk]; if (qty == null) continue;
+    let gl = (grouped && inv) ? mapSizeToGroup(parseFloat(sk), inv) : null;
+    const key = gl || String(sk);
+    if (!buckets[key]) { buckets[key] = { label:key, sizes:[], total:0, isGrouped: !!gl }; order.push(key); }
+    buckets[key].sizes.push({ sz: sk, qty });
+    buckets[key].total += (qty || 0);
+  }
+  return order
+    .sort((a,b)=>parseFloat(String(a).replace(/#/g,'').split('-')[0]) - parseFloat(String(b).replace(/#/g,'').split('-')[0]))
+    .map(k=>buckets[k]);
+}
+function fmtGroupLabel(l) {
+  const c = String(l).replace(/#/g,'').trim();
+  if (c.includes('-')) {
+    const [a, b] = c.split('-').map(s => s.trim());
+    return `${a}#-${b}#`;
+  }
+  return c + '#';
+}
+function grpKey(label) { return String(label).replace(/[^a-zA-Z0-9]/g,'_'); }
+
+// ══════════════════════════════════════════════════════════
+// BUILD DISPLAY SIZES for an order — dùng khuon_inventory như v19
+// Returns: { groups: [{label, sizes:[{sz,qty}], isGrouped}], reduced, reduceType }
+// ══════════════════════════════════════════════════════════
+function buildDisplaySizes(order) {
+  const reduced = !!(order.should_reduce);
+  // Đồng bộ v19: nếu should_reduce=true nhưng reduce_type null → WOVEN_FALLBACK
+  const reduceType = order.reduce_type || (reduced ? 'WOVEN_FALLBACK' : null);
+  const sizes = order.sizes || {};
+  const sizeKeys = Object.keys(sizes).sort((a,b)=>parseFloat(a)-parseFloat(b));
+
+  // Lấy OVN inventory cho mold này (giống v19 findOvnInventory)
+  const { inv } = findOvnInventory(order.mold_type || '');
+
+  if (inv && Object.keys(inv).length > 0) {
+    // ✅ ĐỒNG BỘ VỚI V19 buildTrendPivot + TRACKER (L8598, L4096):
+    // CHỈ map vào group khi khuôn là grouped (3-SIZE). Khuôn single-size
+    // giữ nguyên size lẻ. Tránh fallback ±0.5 trong mapSizeToGroup gộp
+    // nhầm 2 size lẻ liền kề thành 1 nhóm.
+    const isGrouped = isGroupedMold(inv);
+    const grouped = {};
+    const ungrouped = [];
+    for (const sk of sizeKeys) {
+      const qty = sizes[sk];
+      if (qty <= 0) continue;
+      let gl = null;
+      if (isGrouped) {
+        gl = mapSizeToGroup(parseFloat(sk), inv);
+      }
+      if (gl) {
+        if (!grouped[gl]) grouped[gl] = [];
+        grouped[gl].push({ sz: sk, qty });
+      } else {
+        // Single-size mold hoặc không map được: giữ nguyên size lẻ
+        const singleLabel = sk;
+        if (!grouped[singleLabel]) grouped[singleLabel] = [];
+        grouped[singleLabel].push({ sz: sk, qty });
+      }
+    }
+    // Sort groups theo lo-bound
+    const sortedLabels = Object.keys(grouped).sort((a,b) => {
+      const loA = parseFloat(String(a).replace(/#/g,'').split('-')[0]);
+      const loB = parseFloat(String(b).replace(/#/g,'').split('-')[0]);
+      return loA - loB;
+    });
+    const groups = sortedLabels.map(gl => ({
+      label: gl,
+      sizes: grouped[gl].sort((a,b)=>parseFloat(a.sz)-parseFloat(b.sz)),
+      isGrouped: isGrouped && gl.includes('-'),
+    }));
+    return { groups, reduced, reduceType };
+  }
+
+  // Fallback: group by proximity (khi chưa có khuon_inventory)
+  const groups = [];
+  let cur = null;
+  for (const sk of sizeKeys) {
+    const qty = sizes[sk];
+    if (qty <= 0) continue;
+    const sn = parseFloat(sk);
+    if (!cur || sn - parseFloat(cur.sizes[cur.sizes.length-1].sz) > 1.5) {
+      cur = { label: null, sizes: [], isGrouped: false };
+      groups.push(cur);
+    }
+    cur.sizes.push({ sz: sk, qty });
+  }
+  for (const g of groups) {
+    if (g.sizes.length > 1) {
+      g.label = g.sizes[0].sz + ' – ' + g.sizes[g.sizes.length-1].sz;
+      g.isGrouped = true;
+    } else {
+      g.label = g.sizes[0].sz;
+    }
+  }
+  return { groups, reduced, reduceType };
+}
+
+// ── findOvnInventory (matching v19) ───────────────────────
+// ── deriveInvFromLiveStatus: port từ v19, dùng _db.live_status ──
+// Fallback khi khuôn không có trong khuon_inventory — suy ra inv từ các size đang trên máy
+function deriveInvFromLiveStatus(moldType) {
+  if (!moldType || !_db.live_status || !Object.keys(_db.live_status).length) return null;
+  const sizesOnMachine = [];
+  for (const [, machine] of Object.entries(_db.live_status)) {
+    if (!machine.molds) continue;
+    for (const [moldBase, sizeList] of Object.entries(machine.molds)) {
+      if (moldCodesMatch(moldType, moldBase)) {
+        for (const s of (sizeList || [])) {
+          const sNum = parseFloat(String(s.size || '').replace('#','').trim());
+          if (!isNaN(sNum)) sizesOnMachine.push(sNum);
+        }
+      }
+    }
+  }
+  if (sizesOnMachine.length === 0) return null;
+  const unique = [...new Set(sizesOnMachine)].sort((a,b) => a-b);
+  const GAP_THRESHOLD = 1.5;
+  const groups = [];
+  let curGroup = [unique[0]];
+  for (let i = 1; i < unique.length; i++) {
+    if (unique[i] - unique[i-1] <= GAP_THRESHOLD) {
+      curGroup.push(unique[i]);
+    } else {
+      groups.push(curGroup);
+      curGroup = [unique[i]];
+    }
+  }
+  groups.push(curGroup);
+  const inv = {};
+  for (const grp of groups) {
+    const lo = Math.min(...grp), hi = Math.max(...grp);
+    const label = grp.length > 1 ? `${lo}-${hi}#` : `${lo}#`;
+    inv[label] = grp.length;
+  }
+  return inv;
+}
+
+function findOvnInventory(moldType) {
+  if (!moldType) return { inv: null, matchedKey: null };
+  const inv = _db.khuon_inventory;
+  if (inv[moldType]) return { inv: inv[moldType], matchedKey: moldType };
+  const clean = s => s.toUpperCase().replace(/\s/g,'');
+  const mc = clean(moldType);
+  let key = Object.keys(inv).find(k => clean(k) === mc);
+  if (key) return { inv: inv[key], matchedKey: key };
+  key = Object.keys(inv).find(k => moldCodesMatch(moldType, k));
+  if (key) return { inv: inv[key], matchedKey: key };
+  // Bước 4: fallback suy ra từ live_status (đồng bộ v19)
+  const derivedInv = deriveInvFromLiveStatus(moldType);
+  if (derivedInv) return { inv: derivedInv, matchedKey: moldType + ' [Live]' };
+  return { inv: null, matchedKey: null };
+}
+
+// ══════════════════════════════════════════════════════════
+// BUILD DISPLAY for group-type QR (multiple RPROs)
+// Merge all orders' sizes — dùng khuon_inventory như v19
+// ══════════════════════════════════════════════════════════
+function buildGroupDisplay(rproList, mold) {
+  const orders = rproList.map(r => findOrderByRpro(r)).filter(Boolean);
+  if (!orders.length) return null;
+
+  const mergedSizes = {};
+  let anyReduced = false;
+  let groupReduceType = null; // 'HA' | 'WOVEN_FALLBACK' | null
+  const rproData = [];
+  for (const o of orders) {
+    const r = !!(o.should_reduce);
+    if (r) anyReduced = true;
+    // ✅ ĐỒNG BỘ V19: order.sizes đã được -1.5 sẵn bởi V19 khi parse (sizesFinal).
+    // KHÔNG apply applyReduceShift lần nữa → tránh double-reduce (-3.0).
+    const effectiveSizes = o.sizes || {};
+    for (const [sz, qty] of Object.entries(effectiveSizes)) {
+      mergedSizes[sz] = (mergedSizes[sz]||0) + qty;
+    }
+    // Lấy reduceType của đơn đầu tiên có reduce (HA > WOVEN_FALLBACK)
+    if (r && !groupReduceType) {
+      groupReduceType = o.reduce_type || 'WOVEN_FALLBACK';
+    }
+    rproData.push({
+      rpro: o.rpro, customer: o.customer||'', finishDate: o.finish_date_ppc||'',
+      qty_order: o.qty_order||0, reduced: r, gender: o.gender||'',
+      reduceType: o.reduce_type||null,
+    });
+  }
+
+  // Dùng khuon_inventory để group label
+  const { inv } = findOvnInventory(mold);
+  const sizeKeys = Object.keys(mergedSizes).sort((a,b)=>parseFloat(a)-parseFloat(b));
+  let groups = [];
+
+  if (inv && Object.keys(inv).length > 0) {
+    // ✅ Đồng bộ v19: CHỈ group khi khuôn là grouped (3-SIZE)
+    const isGrouped = isGroupedMold(inv);
+    const grouped = {};
+    for (const sk of sizeKeys) {
+      const qty = mergedSizes[sk];
+      if (qty <= 0) continue;
+      let gl = null;
+      if (isGrouped) gl = mapSizeToGroup(parseFloat(sk), inv);
+      const key = gl || sk; // single-size: dùng size lẻ làm key
+      if (!grouped[key]) grouped[key]=[];
+      grouped[key].push({sz:sk,qty});
+    }
+    const sortedLabels = Object.keys(grouped).sort((a,b)=>{
+      const loA=parseFloat(String(a).replace(/#/g,'').split('-')[0]);
+      const loB=parseFloat(String(b).replace(/#/g,'').split('-')[0]);
+      return loA-loB;
+    });
+    groups = sortedLabels.map(gl=>({
+      label:gl, sizes:grouped[gl].sort((a,b)=>parseFloat(a.sz)-parseFloat(b.sz)), isGrouped: isGrouped && gl.includes('-')
+    }));
+  } else {
+    let cur = null;
+    for (const sk of sizeKeys) {
+      const qty = mergedSizes[sk];
+      if (qty<=0) continue;
+      const sn=parseFloat(sk);
+      if (!cur || sn-parseFloat(cur.sizes[cur.sizes.length-1].sz)>1.5) {
+        cur={label:null,sizes:[],isGrouped:false}; groups.push(cur);
+      }
+      cur.sizes.push({sz:sk,qty});
+    }
+    for (const g of groups) {
+      if (g.sizes.length>1){g.label=g.sizes[0].sz+' – '+g.sizes[g.sizes.length-1].sz;g.isGrouped=true;}
+      else g.label=g.sizes[0].sz;
+    }
+  }
+  return { groups, anyReduced, groupReduceType, rproData, mergedSizes, mold };
+}
+
+// ══════════════════════════════════════════════════════════
+// ON SCAN INPUT
+// ══════════════════════════════════════════════════════════
+function onScanInput(val) {
+  document.getElementById('scan-clear').style.display = val ? '' : 'none';
+  const p = parseQR(val);
+  if (!p) { hideParsed(); _parsed=null; return; }
+
+  _parsed = p;
+  _doneMap = {}; _orderMap = {}; _grpMap = {};
+  renderParsed(p);
+}
+
+function clearScan() {
+  document.getElementById('scan-inp').value = '';
+  document.getElementById('scan-clear').style.display = 'none';
+  hideParsed();
+  _parsed = null;
+  const cri = document.getElementById('cam-reduce-info');
+  if (cri) { cri.style.display='none'; cri.innerHTML=''; }
+  document.getElementById('scan-inp').focus();
+}
+
+function hideParsed() {
+  document.getElementById('result-card').classList.remove('show');
+  document.getElementById('submit-btn').disabled = true;
+}
+
+// ══════════════════════════════════════════════════════════
+// RENDER PARSED RESULT
+// ══════════════════════════════════════════════════════════
+function renderParsed(p) {
+  const rc = document.getElementById('result-card');
+
+  if (p.type === 'single') {
+    renderSingle(p);
+  } else {
+    renderGroup(p);
+  }
+
+  rc.classList.add('show');
+  rc.scrollIntoView({behavior:'smooth',block:'start'});
+  document.getElementById('submit-btn').disabled = false;
+}
+
+// ── Hiện thông tin hạ size bên dưới camera ──────────────────
+function updateCamReduceInfo(reduceType, reduced) {
+  const el = document.getElementById('cam-reduce-info');
+  if (!el) return;
+  if (!_parsed) { el.style.display='none'; el.innerHTML=''; return; }
+  let badge = '';
+  if (reduced) {
+    if (reduceType === 'HA') {
+      badge = `<span style="display:inline-flex;align-items:center;gap:5px;background:rgba(255,140,66,.18);border:1.5px solid rgba(255,140,66,.5);color:var(--orange);font-size:12px;font-weight:800;font-family:var(--mono);padding:5px 14px;border-radius:20px;letter-spacing:.5px">⬇ HẠ · Logic Reduce Size (-1.5)</span>`;
+    } else {
+      badge = `<span style="display:inline-flex;align-items:center;gap:5px;background:rgba(255,140,66,.12);border:1.5px solid rgba(255,140,66,.35);color:var(--orange);font-size:12px;font-weight:800;font-family:var(--mono);padding:5px 14px;border-radius:20px;letter-spacing:.5px">⬇ HẠ 1.5 · Women Fallback (-1.5)</span>`;
+    }
+  } else {
+    if (reduceType === 'DEFAULT') {
+      badge = `<span style="display:inline-flex;align-items:center;gap:5px;background:rgba(0,207,255,.12);border:1.5px solid rgba(0,207,255,.3);color:var(--accent);font-size:12px;font-weight:800;font-family:var(--mono);padding:5px 14px;border-radius:20px;letter-spacing:.5px">✔ DEFAULT · Không hạ size</span>`;
+    } else {
+      badge = `<span style="display:inline-flex;align-items:center;gap:5px;background:rgba(0,232,122,.08);border:1.5px solid rgba(0,232,122,.25);color:var(--green);font-size:12px;font-weight:800;font-family:var(--mono);padding:5px 14px;border-radius:20px;letter-spacing:.5px">✔ DEFAULT · Giữ nguyên size</span>`;
+    }
+  }
+  el.innerHTML = `<div style="text-align:center;margin-bottom:2px">${badge}</div>`;
+  el.style.display = '';
+}
+
+// ── Single type ────────────────────────────────────────────
+function renderSingle(p) {
+  // Find order
+  const order = findOrderByRpro(p.rproList[0]);
+
+  document.getElementById('type-badge-wrap').innerHTML =
+    `<span class="type-badge type-single">◼ ĐƠN LẺ</span>`;
+
+  // Meta
+  let metaHTML = '';
+  if (order) {
+    const statusLabel = (order.status||'').includes('LAMINATION')?'LAM':(order.status||'').includes('PREFITTING')?'PRE':(order.status||'').includes('MOLDING')?'MOLD':'?';
+    const statusColor = statusLabel==='LAM'?'#00d4ff':statusLabel==='PRE'?'#ffd166':'#00ff88';
+    metaHTML = `
+      <div class="mf"><div class="mf-l">RPRO</div><div class="mf-v c-acc">${order.rpro}</div></div>
+      <div class="mf"><div class="mf-l">Mold</div><div class="mf-v">${order.mold_type||p.mold}</div></div>
+      <div class="mf"><div class="mf-l">Customer</div><div class="mf-v" style="font-size:11px">${order.customer||'—'}</div></div>
+      <div class="mf"><div class="mf-l">TD.Gender</div><div class="mf-v">${genderBadge(order.gender)}</div></div>
+      <div class="mf"><div class="mf-l">Giai Đoạn</div><div class="mf-v"><span style="background:${statusColor}22;color:${statusColor};border:1px solid ${statusColor}55;border-radius:4px;padding:2px 7px;font-size:11px;font-weight:700;font-family:var(--mono)">${statusLabel}</span></div></div>
+      <div class="mf"><div class="mf-l">Finish Date</div><div class="mf-v c-warn" style="font-size:12px">${order.finish_date_ppc||order.molding_ppc||'—'}</div></div>
+      <div class="mf"><div class="mf-l">QR#</div><div class="mf-v">QR${p.qrNum}</div></div>
+      <div class="mf"><div class="mf-l">Qty/label</div><div class="mf-v c-grn">${p.qtyLabel||'—'}</div></div>
+    `;
+  } else {
+    metaHTML = `
+      <div class="mf"><div class="mf-l">RPRO</div><div class="mf-v c-acc">${p.rproList[0]}</div></div>
+      <div class="mf"><div class="mf-l">Mold</div><div class="mf-v">${p.mold}</div></div>
+      <div class="mf"><div class="mf-l">Size</div><div class="mf-v">${p.size||'—'}</div></div>
+      <div class="mf"><div class="mf-l">QR#</div><div class="mf-v">QR${p.qrNum}</div></div>
+      <div class="mf"><div class="mf-l">Qty/label</div><div class="mf-v c-grn">${p.qtyLabel||'—'}</div></div>
+      <div class="mf"><div class="mf-l">Trạng thái</div><div class="mf-v" style="color:var(--warn);font-size:11px">⚠ Không tìm thấy đơn</div></div>
+    `;
+  }
+  document.getElementById('meta-grid').innerHTML = metaHTML;
+  document.getElementById('rpro-list-wrap').style.display = 'none';
+
+  // Build sizes
+  if (order) {
+    const { groups, reduced, reduceType } = buildDisplaySizes(order);
+    updateCamReduceInfo(reduceType, reduced);
+    renderSizeRows(groups, reduced, reduceType, p.qtyLabel, order.mold_type || p.mold, p.rproList[0]);
+  } else if (p.size) {
+    // No order found — show just the scanned size
+    updateCamReduceInfo(null, false);
+    const fakeGroups = [{ label: p.size, sizes: [{sz: p.size, qty: p.qtyLabel||0}], isGrouped:false }];
+    renderSizeRows(fakeGroups, false, null, p.qtyLabel, p.mold, p.rproList[0]);
+  }
+}
+
+// ── Group type ─────────────────────────────────────────────
+function renderGroup(p) {
+  document.getElementById('type-badge-wrap').innerHTML =
+    `<span class="type-badge type-group">◆ CHÙM ${p.rproList.length} ĐƠN</span>`;
+
+  const gd = buildGroupDisplay(p.rproList, p.mold);
+
+  if (!gd || !gd.rproData.length) {
+    document.getElementById('meta-grid').innerHTML = `
+      <div class="mf wide"><div class="mf-l">Mold</div><div class="mf-v c-pur">${p.mold}</div></div>
+      <div class="mf wide"><div class="mf-l">Trạng thái</div><div class="mf-v" style="color:var(--warn);font-size:11px">⚠ Không tìm thấy ${p.rproList.length} RPRO trong tracking list</div></div>
+      <div class="mf"><div class="mf-l">QR#</div><div class="mf-v">QR${p.qrNum}</div></div>
+      <div class="mf"><div class="mf-l">Qty/label</div><div class="mf-v c-grn">${p.qtyLabel||'—'}</div></div>
+    `;
+    document.getElementById('rpro-list-wrap').style.display = '';
+    document.getElementById('rpro-list').innerHTML = p.rproList.map(r =>
+      `<span class="rpro-chip">${r}</span>`).join('');
+    renderSizeRows([], false, null, p.qtyLabel, p.mold, null);
+    return;
+  }
+
+  // Meta from first order or merged
+  const fo = findOrderByRpro(p.rproList[0]);
+  document.getElementById('meta-grid').innerHTML = `
+    <div class="mf"><div class="mf-l">Mold</div><div class="mf-v c-pur">${p.mold}</div></div>
+    <div class="mf"><div class="mf-l">Số đơn</div><div class="mf-v">${p.rproList.length} RPRO</div></div>
+    <div class="mf"><div class="mf-l">QR#</div><div class="mf-v">QR${p.qrNum}</div></div>
+    <div class="mf"><div class="mf-l">Qty/label</div><div class="mf-v c-grn">${p.qtyLabel||'—'}</div></div>
+    ${gd.anyReduced ? `<div class="mf wide"><div class="mf-l">Reduce size</div><div class="mf-v" style="color:var(--orange);font-size:11px">⬇ -1.5 áp dụng (${gd.groupReduceType==='HA'?'Logic Reduce Size':gd.groupReduceType==='WOVEN_FALLBACK'?'Women Fallback':'Hạ size'})</div></div>` : ''}
+  `;
+
+  // RPRO list with details
+  document.getElementById('rpro-list-wrap').style.display = '';
+  document.getElementById('rpro-list').innerHTML = gd.rproData.map(r => `
+    <div class="rpro-chip" title="${r.customer} · ${r.finishDate}">
+      ${r.rpro}${r.reduced?'<span style="color:var(--orange);margin-left:3px">⬇</span>':''}
+    </div>
+  `).join('');
+
+  // Reduce badge
+  updateCamReduceInfo(gd.groupReduceType, gd.anyReduced);
+  renderSizeRows(gd.groups, gd.anyReduced, gd.groupReduceType, p.qtyLabel, p.mold, p.rproList[0]);
+}
+
+// ── Render size rows (core) ────────────────────────────────
+// Build the inner HTML for the sizes table. When a group is "isGrouped"
+// (mold inventory uses range labels like "3.5-4.5"), we collapse all
+// underlying sizes into a SINGLE row showing the group label (e.g. "3.5-4.5#")
+// and a single input. The input value is distributed proportionally across
+// the underlying sizes (by their qty_order) into _doneMap so the existing
+// submit pipeline (per-size scan_records) keeps working unchanged.
+function _initMapsFromGroups(groups) {
+  _doneMap = {}; _orderMap = {}; _grpMap = {};
+  for (const g of groups) {
+    for (const s of g.sizes) {
+      _doneMap[s.sz] = 0;
+      _orderMap[s.sz] = s.qty || 0;
+    }
+    if (g.isGrouped) {
+      const gk = grpKey(g.label);
+      _grpMap[gk] = { label: g.label, sizes: g.sizes.map(s=>s.sz), total: g.sizes.reduce((a,s)=>a+(s.qty||0),0) };
+    }
+  }
+}
+function _renderRowsHTML(groups, qtyLabel) {
+  let html = '';
+  for (const g of groups) {
+    if (g.isGrouped) {
+      html += buildGroupedSzRow(g.label, g.sizes, qtyLabel);
+    } else {
+      // single-size mold (or unmapped fallback): keep raw US-row(s)
+      for (const s of g.sizes) html += buildSzRow(s.sz, s.qty, qtyLabel);
+    }
+  }
+  return html;
+}
+function _applyPrefill(records) {
+  // records: array of {size_label, qty_done, scanned_at}
+  const latestBySz = {};
+  for (const r of records) {
+    const sz = r.size_label;
+    if (!latestBySz[sz] || r.scanned_at > latestBySz[sz].scanned_at) latestBySz[sz] = r;
+  }
+  let any = false;
+  // Per raw-size fill
+  for (const [sz, r] of Object.entries(latestBySz)) {
+    if (r.qty_done > 0 && _doneMap.hasOwnProperty(sz)) {
+      _doneMap[sz] = r.qty_done;
+      any = true;
+    }
+  }
+  // Reflect to inputs: raw inputs first
+  for (const sz of Object.keys(_doneMap)) {
+    const inp = document.getElementById('szinp-'+szKey(sz));
+    if (inp) { inp.value = _doneMap[sz]; onSzChange(sz, _doneMap[sz]); }
+  }
+  // Grouped inputs: sum of underlying sizes
+  for (const [gk, gi] of Object.entries(_grpMap)) {
+    const sum = gi.sizes.reduce((a,s)=>a+(_doneMap[s]||0),0);
+    const inp = document.getElementById('grpinp-'+gk);
+    if (inp) inp.value = sum;
+    _updateGroupedRowVisuals(gk, sum, gi.total);
+  }
+  updateProgress();
+  return any;
+}
+async function renderSizeRowsWithHistory(groups, reduced, reduceType, qtyLabel, mold, rpro) {
+  const rb = document.getElementById('reduce-badge-wrap');
+  if (reduced) {
+    const typeStr = reduceType==='HA'?'Logic Reduce Size (HẠ)':reduceType==='WOVEN_FALLBACK'?'Women Fallback -1.5':'Hạ size';
+    rb.innerHTML = `<span class="reduce-badge">⬇ ${typeStr}: -1.5 size đã áp dụng</span>`;
+  } else { rb.innerHTML = ''; }
+
+  let totalSizes = 0, totalQtyOrder = 0;
+  for (const g of groups) for (const s of g.sizes) { totalSizes++; totalQtyOrder += s.qty; }
+  const groupedCount = groups.filter(g=>g.isGrouped).length;
+  document.getElementById('sz-count').textContent = totalSizes
+    ? `${groups.length} ${groupedCount?'group':'size'} · ${totalSizes} size · ${totalQtyOrder} đôi` : '';
+
+  _initMapsFromGroups(groups);
+
+  const container = document.getElementById('sz-rows');
+  if (!groups.length) {
+    container.innerHTML = `<div class="empty"><div class="empty-icon">📦</div>Không có size data</div>`;
+    document.getElementById('prog-total').style.display = 'none';
+    return;
+  }
+  container.innerHTML = _renderRowsHTML(groups, qtyLabel);
+  document.getElementById('prog-total').style.display = '';
+  updateProgress();
+
+  if (_sb && (mold || rpro)) {
+    try {
+      let query = _sb.from('scan_records').select('size_label,qty_done,qty_order,scanned_at').order('scanned_at',{ascending:false}).limit(200);
+      if (rpro) query = query.eq('rpro_code', rpro);
+      else if (mold) query = query.eq('mold_code', mold);
+      const { data } = await query;
+      if (data && data.length && _applyPrefill(data)) toast('📋 Đã tải dữ liệu đã scan trước đó', 'info');
+    } catch(e) {}
+  }
+}
+
+function renderSizeRows(groups, reduced, reduceType, qtyLabel, mold, rpro) {
+  const rb = document.getElementById('reduce-badge-wrap');
+  if (reduced) {
+    const typeStr = reduceType==='HA'?'Logic Reduce Size (HẠ)':reduceType==='WOVEN_FALLBACK'?'Women Fallback -1.5':'Hạ size';
+    rb.innerHTML = `<span class="reduce-badge">⬇ ${typeStr}: -1.5 size đã áp dụng</span>`;
+  } else { rb.innerHTML = ''; }
+
+  let totalSizes = 0, totalQtyOrder = 0;
+  for (const g of groups) for (const s of g.sizes) { totalSizes++; totalQtyOrder += s.qty; }
+  const groupedCount = groups.filter(g=>g.isGrouped).length;
+  document.getElementById('sz-count').textContent = totalSizes
+    ? `${groups.length} ${groupedCount?'group':'size'} · ${totalSizes} size · ${totalQtyOrder} đôi` : '';
+
+  _initMapsFromGroups(groups);
+
+  const container = document.getElementById('sz-rows');
+  if (!groups.length) {
+    container.innerHTML = `<div class="empty"><div class="empty-icon">📦</div>Không có size data</div>`;
+    document.getElementById('prog-total').style.display = 'none';
+    return;
+  }
+  container.innerHTML = _renderRowsHTML(groups, qtyLabel);
+  document.getElementById('prog-total').style.display = '';
+  updateProgress();
+
+  if (_sb && (mold || rpro)) {
+    (async () => {
+      try {
+        let query = _sb.from('scan_records').select('size_label,qty_done,qty_order,scanned_at').order('scanned_at',{ascending:false}).limit(200);
+        if (rpro) query = query.eq('rpro_code', rpro);
+        else if (mold) query = query.eq('mold_code', mold);
+        const { data } = await query;
+        if (data && data.length && _applyPrefill(data)) toast('📋 Đã tải dữ liệu đã scan trước đó', 'info');
+      } catch(e) {}
+    })();
+  }
+}
+
+function szKey(sz){return String(sz).replace(/\./g,'_');}
+function setPercent(sz,qtyOrder,pct){
+  const val=Math.round(qtyOrder*pct/100);
+  const inp=document.getElementById('szinp-'+szKey(sz));
+  if(inp){inp.value=val;onSzChange(sz,val);}
+}
+function buildSzRow(sz, qtyOrder, qtyLabel) {
+  const k=szKey(sz);
+  return `<div class="sz-row" id="szr-${k}" data-order="${qtyOrder}" data-sz="${sz}">
+    <div class="sz-info">
+      <div class="sz-num">US ${sz}</div>
+      <div class="sz-order">Order: <b>${qtyOrder}</b></div>
+      <div class="sz-presets">
+        <button class="sz-preset" onclick="setPercent('${sz}',${qtyOrder},50)">½</button>
+        <button class="sz-preset" onclick="setPercent('${sz}',${qtyOrder},100)">✓</button>
+      </div>
+    </div>
+    <div class="sz-bar-wrap">
+      <div class="sz-bar"><div class="sz-bar-fill" id="szfill-${k}" style="width:0%;background:var(--green)"></div></div>
+      <div style="font-size:9px;color:var(--text3)" id="szpct-${k}">0%</div>
+    </div>
+    <div class="sz-inp-wrap">
+      <button class="sz-adj" onclick="adjSize('${sz}',-1)">−</button>
+      <input class="sz-inp" id="szinp-${k}" type="number" min="0" value="0" oninput="onSzChange('${sz}',this.value)">
+      <button class="sz-adj" onclick="adjSize('${sz}',1)">+</button>
+    </div>
+  </div>`;
+}
+// Grouped row — single input for whole group (e.g. "3.5-4.5#")
+function buildGroupedSzRow(label, sizes, qtyLabel) {
+  const gk = grpKey(label);
+  const total = sizes.reduce((a,s)=>a+(s.qty||0),0);
+  const szList = sizes.map(s=>`${s.sz}:${s.qty}`).join(' · ');
+  const dlabel = fmtGroupLabel(label);
+  return `<div class="sz-row sz-row-grp" id="grpr-${gk}" data-order="${total}" data-grp="${gk}">
+    <div class="sz-info">
+      <div class="sz-num" style="color:var(--purple)">${dlabel}</div>
+      <div class="sz-order">Order: <b>${total}</b></div>
+      <div class="sz-presets">
+        <button class="sz-preset" onclick="setGrpPercent('${gk}',${total},50)">½</button>
+        <button class="sz-preset" onclick="setGrpPercent('${gk}',${total},100)">✓</button>
+      </div>
+      <div style="font-size:9px;color:var(--text3);margin-top:2px;font-family:var(--mono)">US ${szList}</div>
+    </div>
+    <div class="sz-bar-wrap">
+      <div class="sz-bar"><div class="sz-bar-fill" id="grpfill-${gk}" style="width:0%;background:var(--green)"></div></div>
+      <div style="font-size:9px;color:var(--text3)" id="grppct-${gk}">0%</div>
+    </div>
+    <div class="sz-inp-wrap">
+      <button class="sz-adj" onclick="adjGrp('${gk}',-1)">−</button>
+      <input class="sz-inp" id="grpinp-${gk}" type="number" min="0" value="0" oninput="onGrpChange('${gk}',this.value)">
+      <button class="sz-adj" onclick="adjGrp('${gk}',1)">+</button>
+    </div>
+  </div>`;
+}
+
+function adjSize(sz, delta) {
+  const inp = document.getElementById('szinp-'+szKey(sz));
+  if (!inp) return;
+  let v = parseInt(inp.value)||0;
+  v = Math.max(0, v+delta);
+  inp.value = v;
+  onSzChange(sz, v);
+}
+function adjGrp(gk, delta) {
+  const inp = document.getElementById('grpinp-'+gk);
+  if (!inp) return;
+  let v = parseInt(inp.value)||0;
+  v = Math.max(0, v+delta);
+  inp.value = v;
+  onGrpChange(gk, v);
+}
+function setGrpPercent(gk, total, pct) {
+  const val = Math.round(total*pct/100);
+  const inp = document.getElementById('grpinp-'+gk);
+  if (inp) { inp.value = val; onGrpChange(gk, val); }
+}
+
+function onSzChange(sz, val) {
+  _doneMap[sz] = parseInt(val)||0;
+  const k = szKey(sz);
+  const row = document.getElementById('szr-'+k);
+  const qtyOrder = _orderMap[sz] || 0;
+  const done = _doneMap[sz];
+  const pct = qtyOrder>0 ? Math.min(100,Math.round(done/qtyOrder*100)) : (done>0?100:0);
+  const barColor = pct>=100?'var(--green)':pct>=90?'var(--purple)':pct>=80?'var(--red)':pct>=70?'var(--orange)':pct>=60?'var(--warn)':'var(--accent)';
+  const fill=document.getElementById('szfill-'+k);
+  const pctLbl=document.getElementById('szpct-'+k);
+  if(fill){fill.style.width=pct+'%';fill.style.background=barColor;}
+  if(pctLbl){pctLbl.textContent=pct+'%';pctLbl.style.color=barColor;}
+  if(row) row.classList.toggle('sz-done-row',pct>=100);
+  updateProgress();
+}
+// Distribute group-level done proportionally across underlying sizes by qty_order.
+// Last bucket absorbs rounding remainder so the sum stays exact.
+function onGrpChange(gk, val) {
+  const gi = _grpMap[gk]; if (!gi) return;
+  const total = parseInt(val)||0;
+  const orderTotal = gi.sizes.reduce((a,s)=>a+(_orderMap[s]||0),0);
+  let assigned = 0;
+  if (orderTotal > 0) {
+    for (let i=0; i<gi.sizes.length; i++) {
+      const s = gi.sizes[i];
+      const ord = _orderMap[s]||0;
+      let v;
+      if (i === gi.sizes.length-1) v = Math.max(0, total - assigned);
+      else v = Math.round(total * ord / orderTotal);
+      _doneMap[s] = v;
+      assigned += v;
+    }
+  } else {
+    // No order info → split evenly
+    const each = Math.floor(total / gi.sizes.length);
+    let rem = total - each*gi.sizes.length;
+    for (const s of gi.sizes) { _doneMap[s] = each + (rem>0?1:0); if(rem>0) rem--; }
+  }
+  _updateGroupedRowVisuals(gk, total, gi.total);
+  updateProgress();
+}
+function _updateGroupedRowVisuals(gk, done, total) {
+  const pct = total>0 ? Math.min(100,Math.round(done/total*100)) : (done>0?100:0);
+  const col = pct>=100?'var(--green)':pct>=90?'var(--purple)':pct>=80?'var(--red)':pct>=70?'var(--orange)':pct>=60?'var(--warn)':'var(--accent)';
+  const fill=document.getElementById('grpfill-'+gk);
+  const pctLbl=document.getElementById('grppct-'+gk);
+  const row=document.getElementById('grpr-'+gk);
+  if(fill){fill.style.width=pct+'%';fill.style.background=col;}
+  if(pctLbl){pctLbl.textContent=pct+'%';pctLbl.style.color=col;}
+  if(row) row.classList.toggle('sz-done-row',pct>=100);
+}
+
+function updateProgress() {
+  let totalDone=0, totalOrder=0;
+  for (const sz of Object.keys(_orderMap)) {
+    totalOrder += _orderMap[sz]||0;
+    totalDone  += _doneMap[sz]||0;
+  }
+  const pct = totalOrder>0 ? Math.min(100,Math.round(totalDone/totalOrder*100)) : 0;
+  const col = pct>=100?'var(--green)':pct>=90?'var(--purple)':pct>=80?'var(--red)':pct>=70?'var(--orange)':pct>=60?'var(--warn)':'var(--accent)';
+  const pLabel=document.getElementById('prog-pct-lbl');
+  const fill=document.getElementById('prog-fill');
+  const detail=document.getElementById('prog-detail');
+  if(pLabel){pLabel.textContent=pct+'%';pLabel.style.color=col;}
+  if(fill){fill.style.width=pct+'%';fill.style.background=col;}
+  if(detail) detail.textContent=`${totalDone} / ${totalOrder} đôi done`;
+  [60,70,80,90,100].forEach(t=>{
+    const el=document.getElementById('thr'+t);
+    if(el) el.classList.toggle('hit',pct>=t);
+  });
+  const hasData=Object.values(_doneMap).some(v=>v>0);
+  const btn=document.getElementById('submit-btn');
+  if(btn) btn.disabled=!hasData;
+}
+
+
+// ══════════════════════════════════════════════════════════
+// SCAN LOG — hiện record vừa gửi (mold, RPRO, size, NV, giờ)
+// ══════════════════════════════════════════════════════════
+let _scanLogs = [];
+
+function showScanLog(mold, rpros, sizes, worker, timeStr) {
+  _scanLogs.unshift({ mold, rpros, sizes, worker, timeStr });
+  if (_scanLogs.length > 10) _scanLogs.pop();
+  renderScanLogs();
+}
+
+function renderScanLogs() {
+  const wrap = document.getElementById('scan-log-wrap');
+  if (!wrap) return;
+  wrap.innerHTML = _scanLogs.map((l, i) => `
+    <div class="scan-log" style="${i>0?'opacity:.55;':''}">
+      <div class="scan-log-head">✅ GỬI THÀNH CÔNG ${i===0?'':'· '+l.timeStr}</div>
+      <div class="scan-log-row">🔧 Khuôn: <b>${l.mold}</b></div>
+      <div class="scan-log-row">📋 RPRO: <b>${l.rpros}</b></div>
+      <div class="scan-log-row">👟 Size done: <b>${l.sizes}</b></div>
+      <div class="scan-log-row">🪪 MSNV: <b>NV-${l.worker}</b> · 🕐 <b>${l.timeStr}</b></div>
+    </div>`).join('');
+}
+
+// ══════════════════════════════════════════════════════════
+// SUBMIT SCAN
+// ══════════════════════════════════════════════════════════
+async function submitScan() {
+  if (!_parsed) { toast('Chưa có dữ liệu QR','err'); return; }
+  if (!_worker) { toast('Nhập mã số nhân viên trước!','err'); openWorkerModal(); return; }
+  if (!_sb) { toast('Không có kết nối','err'); return; }
+
+  const btn = document.getElementById('submit-btn');
+  btn.disabled = true;
+  btn.textContent = '⏳ Đang gửi...';
+
+  try {
+    // Build records: 1 record per RPRO+size
+    const records = [];
+    const now = new Date().toISOString();
+
+    if (_parsed.type === 'single') {
+      const rpro = _parsed.rproList[0];
+      const order = findOrderByRpro(rpro);
+      for (const [sz, done] of Object.entries(_doneMap)) {
+        const qtyOrder = order ? (order.sizes[sz]||0) : (_parsed.qtyLabel||0);
+        const pct = qtyOrder>0 ? Math.min(100,Math.round(done/qtyOrder*100)) : 0;
+        records.push({
+          mold_code: _parsed.mold,
+          rpro_code: rpro,
+          size_label: sz,
+          qr_num: _parsed.qrNum,
+          qty_done: done,
+          qty_order: qtyOrder,
+          pct,
+          worker_name: _worker,
+          shift_name: _shift || '',
+          scan_type: 'single',
+          scanned_at: now,
+        });
+      }
+    } else {
+      // Group type — chùm nhiều RPRO
+      // ✅ ĐỒNG BỘ V19 TREND: qty_order = TỔNG MERGED qua TẤT CẢ RPRO trong chùm
+      // (không tách theo owner đầu tiên). Cộng dồn effective sizes (đã hạ -1.5
+      // per-order) qua mọi RPRO có size đó — giống buildTrendPivot của v19.
+      const rpros = _parsed.rproList;
+      for (const [sz, done] of Object.entries(_doneMap)) {
+        let qtyOrder = 0;
+        let ownerRpro = rpros[0];
+        let ownerFound = false;
+        for (const r of rpros) {
+          const o = findOrderByRpro(r);
+          if (!o) continue;
+          // ✅ ĐỒNG BỘ V19: order.sizes đã -1.5 sẵn, dùng trực tiếp
+          const effSizes = o.sizes || {};
+          const q = effSizes[sz] || 0;
+          if (q > 0) {
+            qtyOrder += q;          // merged total qua mọi RPRO
+            if (!ownerFound) { ownerRpro = r; ownerFound = true; }
+          }
+        }
+        if (done === 0 && qtyOrder === 0) continue;
+        const pct = qtyOrder>0 ? Math.min(100,Math.round(done/qtyOrder*100)) : 0;
+        records.push({
+          mold_code: _parsed.mold,
+          rpro_code: ownerRpro,           // RPRO đầu tiên có size này (rpro_group giữ full chùm)
+          size_label: sz,
+          qr_num: _parsed.qrNum,
+          qty_done: done,
+          qty_order: qtyOrder,            // merged total — đúng số lượng như v19
+          pct,
+          worker_name: _worker,
+          shift_name: _shift || '',
+          scan_type: 'group',
+          rpro_group: rpros.join('|'),
+          scanned_at: now,
+        });
+      }
+    }
+
+    if (!records.length) { toast('Không có size nào được nhập','err'); btn.disabled=false; btn.textContent='✅ Gửi báo cáo'; return; }
+
+    const { error } = await _sb.from('scan_records').insert(records);
+    if (error) throw error;
+
+    // Build confirm summary
+    const nowFmt = new Date(now).toLocaleTimeString('vi-VN',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+    const rpros = [...new Set(records.map(r=>r.rpro_code))].join(', ');
+    const sizes = records.map(r=>`${r.size_label}:${r.qty_done}`).join(' · ');
+    toast(`✅ ${_parsed.mold} · ${records.length} size · NV-${_worker}${_shift?' Ca '+_shift:''} · ${nowFmt}`,'ok');
+    // Show scan confirm log
+    showScanLog(_parsed.mold, rpros, sizes, _worker + (_shift?' Ca '+_shift:''), nowFmt);
+    clearScan();
+    document.getElementById('scan-inp').focus();
+  } catch(e) {
+    toast('❌ ' + (e.message||'Lỗi gửi'),'err');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '✅ Gửi báo cáo';
+  }
+}
+
+// ══════════════════════════════════════════════════════════
+// LOOKUP
+// ══════════════════════════════════════════════════════════
+function onLookup(val) {
+  const cl = document.getElementById('lu-clear');
+  if (cl) cl.style.display = val ? '' : 'none';
+  const res = document.getElementById('lu-result');
+  if (!val || val.length < 4) { res.classList.remove('show'); return; }
+  const q = val.toUpperCase();
+  // Search by RPRO or mold in WIP orders
+  const found = _db.orders.filter(o =>
+    (o.rpro||'').toUpperCase().includes(q) ||
+    extractMoldCode(o.mold_type||'').includes(q)
+  ).slice(0,8);
+
+  let html = '';
+
+  if (found.length) {
+    html += found.map(o => {
+      const sizeCount = Object.keys(o.sizes||{}).length;
+      const totalQty = Object.values(o.sizes||{}).reduce((a,b)=>a+b,0);
+      const redBadge = o.should_reduce ? `<span style="color:var(--orange);font-size:10px">⬇-1.5</span>` : '';
+      return `<div class="lu-order-chip" onclick="fillScanFromOrder('${o.rpro}')">
+        <div>
+          <div class="lu-rpro">${o.rpro} ${redBadge}</div>
+          <div class="lu-info">${o.mold_type||'?'} · ${o.customer||''}</div>
+          <div class="lu-info">${sizeCount} size · ${totalQty} đôi · ${o.finish_date_ppc||'?'}</div>
+        </div>
+        <span style="color:var(--accent);font-size:18px">→</span>
+      </div>`;
+    }).join('');
+  }
+
+  // Also search scan_records history
+  if (_sb) {
+    (async () => {
+      try {
+        const { data } = await _sb.from('scan_records')
+          .select('mold_code,rpro_code,size_label,qty_done,qty_order,pct,scanned_at,worker_name')
+          .or(`rpro_code.ilike.%${val}%,mold_code.ilike.%${val}%`)
+          .order('scanned_at',{ascending:false})
+          .limit(50);
+        if (!data || !data.length) return;
+        // Group by rpro_code
+        const byRpro = {};
+        for (const r of data) {
+          const k = r.rpro_code||'?';
+          if (!byRpro[k]) byRpro[k] = {rpro:k, mold:r.mold_code||'?', sizes:{}, lastScan:r.scanned_at, worker:r.worker_name};
+          const e = byRpro[k];
+          if (!e.sizes[r.size_label] || r.scanned_at > e.sizes[r.size_label].at) {
+            e.sizes[r.size_label] = {done:r.qty_done, order:r.qty_order, at:r.scanned_at};
+          }
+          if (r.scanned_at > e.lastScan) {e.lastScan=r.scanned_at;e.worker=r.worker_name;}
+        }
+        // Filter out already-shown WIP orders
+        const wipRpros = new Set(found.map(o=>o.rpro));
+        const histItems = Object.values(byRpro).filter(e=>!wipRpros.has(e.rpro));
+        if (!histItems.length) return;
+        const resEl = document.getElementById('lu-result');
+        if (!resEl.classList.contains('show')) { resEl.classList.add('show'); }
+        let extra = `<div style="font-family:var(--mono);font-size:9px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin:8px 0 4px;padding:0 2px">📋 Lịch sử scan</div>`;
+        extra += histItems.slice(0,5).map(e => {
+          const totalDone = Object.values(e.sizes).reduce((s,v)=>s+(v.done||0),0);
+          const totalOrder = Object.values(e.sizes).reduce((s,v)=>s+(v.order||0),0);
+          const pct = totalOrder>0?Math.min(100,Math.round(totalDone/totalOrder*100)):0;
+          const col = pct>=100?'var(--green)':pct>=80?'var(--red)':pct>=60?'var(--warn)':'var(--accent)';
+          // ✅ Group sizes theo OVN inv (giống Trend / WIP)
+          const doneObj = {}, ordObj = {};
+          for (const [sz, v] of Object.entries(e.sizes)) { doneObj[sz]=v.done||0; ordObj[sz]=v.order||0; }
+          const grpDone = groupSizesByMold(e.mold, doneObj);
+          const grpOrd  = groupSizesByMold(e.mold, ordObj);
+          const ordByLabel = {}; for (const g of grpOrd) ordByLabel[g.label] = g.total;
+          const chips = grpDone.map(g => {
+            const o = ordByLabel[g.label] || 0;
+            const cdone = o>0 && g.total>=o;
+            const cc = cdone?'var(--green)':g.total>0?'var(--accent)':'var(--text2)';
+            return `<span style="font-family:var(--mono);font-size:9px;padding:2px 6px;background:var(--bg4);border:1px solid ${cdone?'rgba(0,232,122,.3)':'var(--border2)'};border-radius:4px;color:${cc};font-weight:700">${fmtGroupLabel(g.label)} ${g.total}<span style="color:var(--text3);font-weight:400">/${o}</span></span>`;
+          }).join('');
+          return `<div class="lu-order-chip" onclick="fillScanFromHistory('${e.rpro}','${e.mold}')" style="border-color:rgba(0,207,255,.15)">
+            <div style="min-width:0;flex:1">
+              <div class="lu-rpro" style="color:var(--text2)">${e.rpro}</div>
+              <div class="lu-info">${e.mold} · NV-${e.worker||'?'} · ${timeAgo(e.lastScan)}</div>
+              <div class="lu-info">${grpDone.length} ${grpDone.some(g=>g.isGrouped)?'group':'size'} · ${totalDone}/${totalOrder} đôi đã done</div>
+              <div style="display:flex;flex-wrap:wrap;gap:3px;margin-top:4px">${chips}</div>
+            </div>
+            <span style="font-family:var(--mono);font-size:14px;font-weight:800;color:${col}">${pct}%</span>
+          </div>`;
+        }).join('');
+        resEl.innerHTML = (resEl.innerHTML || '') + extra;
+      } catch(e) {}
+    })();
+  }
+
+  if (!found.length && !_sb) {
+    res.innerHTML = `<div class="empty" style="padding:16px"><div class="empty-icon">🔍</div>Không tìm thấy</div>`;
+  } else if (!found.length) {
+    res.innerHTML = `<div class="empty" style="padding:16px"><div class="empty-icon">🔍</div>Đang tìm trong lịch sử...</div>`;
+  } else {
+    res.innerHTML = html;
+  }
+  res.classList.add('show');
+}
+
+function fillScanFromHistory(rpro, mold) {
+  // First try fill from WIP orders, otherwise build from scan_records
+  const order = findOrderByRpro(rpro);
+  if (order) {
+    fillScanFromOrder(rpro);
+    return;
+  }
+  // Build from scan_records
+  setTab('scan', null);
+  document.getElementById('scan-inp').value = rpro;
+  document.getElementById('scan-clear').style.display = '';
+  toast('Đang tải dữ liệu scan cũ...', 'info');
+  if (!_sb) { toast('Không có kết nối', 'err'); return; }
+  (async () => {
+    try {
+      const { data } = await _sb.from('scan_records')
+        .select('size_label,qty_done,qty_order,scanned_at')
+        .eq('rpro_code', rpro)
+        .order('scanned_at',{ascending:false})
+        .limit(100);
+      if (!data || !data.length) { toast('Không tìm thấy dữ liệu', 'err'); return; }
+      // Build sizes from scan_records
+      const latestBySz = {};
+      for (const r of data) {
+        const sz = r.size_label;
+        if (!latestBySz[sz] || r.scanned_at > latestBySz[sz].scanned_at) latestBySz[sz] = r;
+      }
+      const fakeSizes = {};
+      for (const [sz, r] of Object.entries(latestBySz)) fakeSizes[sz] = r.qty_order || 0;
+
+      const fakeOrder = { rpro, mold_type: mold, sizes: fakeSizes, should_reduce: false };
+      const { groups } = buildDisplaySizes(fakeOrder);
+      const fakeParsed = { type:'single', rproList:[rpro], mold, size:null, qrNum:'?', qtyLabel:0 };
+      _parsed = fakeParsed;
+      _doneMap = {}; _orderMap = {}; _grpMap = {};
+
+      // Render card manually
+      const rc = document.getElementById('result-card');
+      document.getElementById('type-badge-wrap').innerHTML = `<span class="type-badge type-single">📋 ĐƠN CŨ (LỊCH SỬ)</span>`;
+      document.getElementById('meta-grid').innerHTML = `
+        <div class="mf"><div class="mf-l">RPRO</div><div class="mf-v c-acc">${rpro}</div></div>
+        <div class="mf"><div class="mf-l">Mold</div><div class="mf-v">${mold}</div></div>
+        <div class="mf wide"><div class="mf-l">Trạng thái</div><div class="mf-v" style="color:var(--warn);font-size:11px">⚠ Đơn đã hoàn thành / không còn trong WIP</div></div>
+      `;
+      document.getElementById('rpro-list-wrap').style.display = 'none';
+      document.getElementById('reduce-badge-wrap').innerHTML = '';
+      rc.classList.add('show');
+
+      // Render size rows and pre-fill
+      renderSizeRows(groups, false, null, 0, mold, rpro);
+      document.getElementById('submit-btn').disabled = false;
+      rc.scrollIntoView({behavior:'smooth',block:'start'});
+    } catch(e) { toast('❌ Lỗi: '+e.message, 'err'); }
+  })();
+}
+
+function fillScanFromOrder(rpro) {
+  // Fill scan tab with this order
+  setTab('scan', document.querySelector('.nav-btn'));
+  document.getElementById('scan-inp').value = rpro;
+  // Build fake QR
+  const order = findOrderByRpro(rpro);
+  if (!order) { toast('Không tìm thấy đơn','err'); return; }
+  const fakeParsed = {
+    type: 'single',
+    rproList: [rpro],
+    mold: order.mold_type || '',
+    size: null,
+    qrNum: '?',
+    qtyLabel: 0,
+  };
+  _parsed = fakeParsed;
+  _doneMap = {}; _orderMap = {}; _grpMap = {};
+  document.getElementById('scan-clear').style.display = '';
+  renderParsed(fakeParsed);
+  toast('Đơn: ' + rpro, 'info');
+}
+
+// ══════════════════════════════════════════════════════════
+// WORKER MODAL
+// ══════════════════════════════════════════════════════════
+function openWorkerModal() {
+  document.getElementById('modal-worker-inp').value = _worker;
+  highlightShiftBtn(_shift);
+  document.getElementById('worker-modal').classList.add('open');
+  setTimeout(()=>document.getElementById('modal-worker-inp').focus(),100);
+}
+function closeWorkerModal() {
+  document.getElementById('worker-modal').classList.remove('open');
+}
+function selectShift(s) {
+  _shift = s;
+  highlightShiftBtn(s);
+}
+function highlightShiftBtn(s) {
+  ['S1','S2','S3'].forEach(sh=>{
+    const btn = document.getElementById('shift-'+sh.toLowerCase());
+    if (!btn) return;
+    if (sh === s) {
+      btn.style.background = 'var(--accent-dim)';
+      btn.style.borderColor = 'var(--accent)';
+      btn.style.color = 'var(--accent)';
+    } else {
+      btn.style.background = 'var(--bg3)';
+      btn.style.borderColor = 'var(--border2)';
+      btn.style.color = 'var(--text2)';
+    }
+  });
+}
+function saveWorkerFromModal() {
+  const v = (document.getElementById('modal-worker-inp').value||'').trim();
+  if (!v) { toast('Nhập mã số nhân viên trước','err'); return; }
+  if (!_shift) { toast('Chọn ca làm việc (S1 / S2 / S3)','err'); return; }
+  _worker = v;
+  localStorage.setItem('sc_worker', v);
+  localStorage.setItem('sc_shift', _shift);
+  updateWorkerUI();
+  closeWorkerModal();
+  toast('✅ NV-' + v + ' · Ca ' + _shift,'ok');
+}
+function saveWorker() {
+  const v = (document.getElementById('setup-worker').value||'').trim();
+  if (!v) { toast('Nhập mã số nhân viên','err'); return; }
+  _worker = v;
+  localStorage.setItem('sc_worker', v);
+  updateWorkerUI();
+  toast('✅ Mã NV: ' + v,'ok');
+}
+function updateWorkerUI() {
+  const shiftTxt = _shift ? ' · Ca '+_shift : '';
+  document.getElementById('worker-lbl').textContent = _worker ? ('NV-'+_worker+shiftTxt) : 'Chưa đặt mã';
+  const swi = document.getElementById('setup-worker');
+  if (swi) swi.value = _worker;
+}
+
+// ── Cài đặt có mật khẩu ──────────────────────────────────
+const SETUP_PW = '9999';
+function openSetupWithPw() {
+  document.getElementById('setup-pw-inp').value = '';
+  document.getElementById('setup-pw-err').textContent = '';
+  document.getElementById('setup-pw-modal').classList.add('open');
+  setTimeout(()=>document.getElementById('setup-pw-inp').focus(),100);
+}
+function checkSetupPw() {
+  const v = document.getElementById('setup-pw-inp').value;
+  if (v === SETUP_PW) {
+    document.getElementById('setup-pw-modal').classList.remove('open');
+    const btn = document.querySelector('.nav-btn:last-child');
+    setTab('setup', btn);
+  } else {
+    document.getElementById('setup-pw-err').textContent = '❌ Sai mật khẩu';
+    document.getElementById('setup-pw-inp').value='';
+    setTimeout(()=>document.getElementById('setup-pw-inp').focus(),50);
+  }
+}
+
+// ══════════════════════════════════════════════════════════
+// UI HELPERS
+// ══════════════════════════════════════════════════════════
+function setTab(name, el) {
+  if(name!=='scan' && typeof _camActive!=='undefined' && _camActive) stopCamera();
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  const panel = document.getElementById('panel-'+name);
+  if (panel) panel.classList.add('active');
+  if (el) el.classList.add('active');
+  else {
+    const btns = document.querySelectorAll('.nav-btn');
+    const names = ['scan','lookup','hist','wip','trend','gender','request','setup'];
+    const idx = names.indexOf(name);
+    if(idx>=0 && btns[idx]) btns[idx].classList.add('active');
+  }
+}
+
+function toast(msg, type) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show ' + (type||'');
+  clearTimeout(t._t);
+  t._t = setTimeout(()=>t.classList.remove('show'), 3400);
+}
+
+function timeAgo(iso) {
+  if (!iso) return '';
+  const diff = Date.now()-new Date(iso).getTime();
+  const m = Math.floor(diff/60000);
+  if (m<1) return 'vừa xong';
+  if (m<60) return m+'p trước';
+  const h=Math.floor(m/60);
+  if (h<24) return h+'h trước';
+  return Math.floor(h/24)+'ng trước';
+}
+
+function clearHistory() {
+  if (confirm('Xóa lịch sử scan local?')) { toast('Đã xóa','ok'); }
+}
+
+// ── Init ─────────────────────────────────────────────────
+updateWorkerUI();
+if (!_worker) { setTimeout(openWorkerModal, 600); }
+
+// ══════════════════════════════════════════════════════════
+// CAMERA QR SCAN
+// ══════════════════════════════════════════════════════════
+let _qrScanner = null;
+let _camActive = false;
+let _lastScanned = '';
+let _scanCooldown = false;
+
+async function toggleCamera() {
+  if (_camActive) { await stopCamera(); } else { await startCamera(); }
+}
+
+async function startCamera() {
+  if (location.protocol === 'file:') {
+    toast('⚠️ Cần HTTPS để dùng camera. Dùng ô nhập tay bên dưới.','err'); return;
+  }
+  if (typeof Html5Qrcode === 'undefined') {
+    toast('❌ Thư viện camera chưa load. Kiểm tra mạng.','err'); return;
+  }
+  const wrap=document.getElementById('cam-wrap');
+  const btnLbl=document.getElementById('cam-btn-lbl');
+  const camIcon=document.getElementById('cam-icon');
+  wrap.style.display='';
+  btnLbl.textContent='Đang khởi động...';
+  try {
+    _qrScanner = new Html5Qrcode('qr-reader');
+    await _qrScanner.start(
+      {facingMode:'environment'},
+      {fps:12, qrbox:{width:240,height:240}, aspectRatio:1.0},
+      onQRSuccess, ()=>{}
+    );
+    _camActive=true;
+    btnLbl.textContent='⏹ Tắt camera';
+    if(camIcon) camIcon.textContent='⏹';
+    const btn=document.getElementById('cam-btn');
+    if(btn){btn.style.background='rgba(255,61,90,.1)';btn.style.borderColor='rgba(255,61,90,.4)';btn.style.color='var(--red)';}
+  } catch(e) {
+    wrap.style.display='none';
+    btnLbl.textContent='Mở camera scan QR';
+    if(camIcon) camIcon.textContent='📷';
+    const btn=document.getElementById('cam-btn');
+    if(btn){btn.style.background='';btn.style.borderColor='rgba(0,207,255,.35)';btn.style.color='var(--accent)';}
+    let msg='Không mở được camera';
+    if(e.message){
+      if(e.message.includes('ermission')||e.message.includes('ermitted')) msg='Cần cấp quyền camera';
+      else if(e.message.includes('NotFound')||e.message.includes('ould not start')) msg='Không tìm thấy camera';
+    }
+    toast('❌ '+msg,'err');
+  }
+}
+
+async function stopCamera() {
+  try {
+    if(_qrScanner){ await _qrScanner.stop(); _qrScanner.clear(); _qrScanner=null; }
+  } catch(e){}
+  _camActive=false;
+  const wrap=document.getElementById('cam-wrap');
+  const btnLbl=document.getElementById('cam-btn-lbl');
+  const camIcon=document.getElementById('cam-icon');
+  const btn=document.getElementById('cam-btn');
+  if(wrap) wrap.style.display='none';
+  if(btnLbl) btnLbl.textContent='Mở camera scan QR';
+  if(camIcon) camIcon.textContent='📷';
+  if(btn){btn.style.background='linear-gradient(135deg,rgba(0,207,255,.15),rgba(0,207,255,.05))';btn.style.borderColor='rgba(0,207,255,.35)';btn.style.color='var(--accent)';}
+}
+
+function onQRSuccess(decodedText) {
+  if(_scanCooldown||decodedText===_lastScanned) return;
+  _lastScanned=decodedText;
+  _scanCooldown=true;
+  setTimeout(()=>{_scanCooldown=false;},2500);
+  stopCamera();
+  if(navigator.vibrate) navigator.vibrate(50);
+  const inp=document.getElementById('scan-inp');
+  if(inp){inp.value=decodedText;document.getElementById('scan-clear').style.display='';}
+  onScanInput(decodedText);
+  setTimeout(()=>{
+    const rc=document.getElementById('result-card');
+    if(rc) rc.scrollIntoView({behavior:'smooth',block:'start'});
+  },200);
+}
+
+// Show https warning if local file
+(function(){
+  if(location.protocol==='file:'){
+    const w=document.getElementById('cam-https-warn');
+    if(w) w.style.display='';
+    const i=document.getElementById('cam-icon');
+    if(i) i.textContent='🔒';
+    const l=document.getElementById('cam-btn-lbl');
+    if(l) l.textContent='Camera cần HTTPS (không khả dụng)';
+    const b=document.getElementById('cam-btn');
+    if(b){b.style.opacity='0.45';b.style.cursor='default';}
+  }
+})();
+
+// setAllDone helper
+function setAllDone(pct) {
+  const rows=document.getElementById('sz-rows').querySelectorAll('.sz-row');
+  for(const row of rows){
+    const qtyOrder=parseInt(row.dataset.order)||0;
+    const val=Math.round(qtyOrder*pct/100);
+    const gk=row.dataset.grp;
+    if(gk){
+      const inp=document.getElementById('grpinp-'+gk);
+      if(inp){inp.value=val;onGrpChange(gk,val);}
+    } else {
+      const sz=row.dataset.sz;
+      const inp=document.getElementById('szinp-'+szKey(sz));
+      if(inp){inp.value=val;onSzChange(sz,val);}
+    }
+  }
+  if(pct===100&&navigator.vibrate) navigator.vibrate([30,20,30]);
+}
+
+
+
+// ══════════════════════════════════════════════════════════
+// HISTORY (with filter)
+// ══════════════════════════════════════════════════════════
+let _histRaw=[];
+async function loadHistory(){
+  const el=document.getElementById('hist-list');
+  el.innerHTML='<div class="empty"><div class="spinner"></div></div>';
+  if(!_sb){el.innerHTML='<div class="empty" style="color:var(--red)">Chưa kết nối</div>';return;}
+  try{
+    const{data,error}=await _sb.from('scan_records').select('*').order('scanned_at',{ascending:false}).limit(100);
+    if(error) throw error;
+    _histRaw=data||[];
+    const f=document.getElementById('hist-filter');
+    renderHistory(f?f.value:'');
+  }catch(e){el.innerHTML=`<div class="empty" style="color:var(--red)">Lỗi: ${e.message}</div>`;}
+}
+function filterHistory(q){
+  if(q==='me'){const f=document.getElementById('hist-filter');if(f)f.value=_worker;renderHistory(_worker);return;}
+  renderHistory(q);
+}
+// Map a raw size_label to its OVN group label (e.g. "4" → "3.5-4.5#") for
+// display in Lịch sử / Tra cứu. Falls back to raw "{sz}#" when the mold has
+// no inventory or is single-size.
+function _histGroupLabel(mold, sizeLabel) {
+  if (!sizeLabel) return '?';
+  const { inv } = findOvnInventory(mold || '');
+  if (inv && isGroupedMold(inv)) {
+    const sNum = parseFloat(sizeLabel);
+    if (!isNaN(sNum)) {
+      const gl = mapSizeToGroup(sNum, inv);
+      if (gl) return fmtGroupLabel(gl);
+    }
+  }
+  return fmtGroupLabel(sizeLabel);
+}
+function renderHistory(q){
+  const el=document.getElementById('hist-list');
+  const fq=(q||'').trim().toLowerCase();
+  const data=fq?_histRaw.filter(r=>(r.mold_code||'').toLowerCase().includes(fq)||(r.worker_name||'').toLowerCase().includes(fq)||(r.rpro_code||'').toLowerCase().includes(fq)):_histRaw;
+  if(!data.length){el.innerHTML='<div class="empty"><div class="empty-icon">📭</div>Không có kết quả</div>';return;}
+  el.innerHTML=data.map(r=>{
+    const pct=r.pct||0,mine=r.worker_name===_worker;
+    const col=pct>=100?'var(--green)':pct>=90?'var(--purple)':pct>=80?'var(--red)':pct>=70?'var(--orange)':pct>=60?'var(--warn)':'var(--text2)';
+    return `<div class="hist-item${mine?' hi-mine':''}">
+      <div class="hi-top">
+        <div><span class="hi-mold">${r.mold_code||'?'}</span><span style="font-family:var(--mono);font-size:11px;color:var(--text2);margin-left:6px">${r.rpro_code||''}</span></div>
+        <div class="hi-pct" style="color:${col}">${pct}%</div>
+      </div>
+      <div class="hi-meta">Size ${_histGroupLabel(r.mold_code, r.size_label)} · ${r.qty_done||0}/${r.qty_order||0} đôi · NV-${r.worker_name||'?'}${r.shift_name?' Ca '+r.shift_name:''} · ${timeAgo(r.scanned_at)}${mine?' 👤':''}</div>
+    </div>`;
+  }).join('');
+}
+
+// ══════════════════════════════════════════════════════════
+// WIP LIVE — tổng hợp qty done theo mold từ scan_records
+// ══════════════════════════════════════════════════════════
+let _wipRaw = [];
+async function loadWIP() {
+  const el = document.getElementById('wip-list');
+  el.innerHTML = '<div class="empty"><div class="spinner"></div></div>';
+  if (!_sb) { el.innerHTML='<div class="empty" style="color:var(--red)">Chưa kết nối</div>'; return; }
+  try {
+    // Lấy tất cả scan records, group by mold
+    const { data, error } = await _sb.from('scan_records')
+      .select('mold_code,rpro_code,size_label,qty_done,qty_order,pct,scanned_at,worker_name,shift_name')
+      .order('scanned_at', {ascending:false})
+      .limit(500);
+    if (error) throw error;
+
+    // Group by mold_code
+    const molds = {};
+    for (const r of (data||[])) {
+      const m = r.mold_code||'?';
+      if (!molds[m]) molds[m] = {mold:m, rpros:new Set(), sizes:{}, totalDone:0, totalOrder:0, lastScan:r.scanned_at, workers:new Set(), workerShifts:{}};
+      const mo = molds[m];
+      if(r.rpro_code) mo.rpros.add(r.rpro_code);
+      if(r.worker_name) {
+        mo.workers.add(r.worker_name);
+        if(r.shift_name) mo.workerShifts[r.worker_name] = r.shift_name;
+      }
+      const sz = r.size_label||'?';
+      if(!mo.sizes[sz]) {
+        mo.sizes[sz]={done:r.qty_done||0, order:r.qty_order||0, worker:r.worker_name||'?', shift:r.shift_name||'', scanned_at:r.scanned_at};
+      } else {
+        // data sorted desc → first hit = latest
+        if((r.scanned_at||'') > (mo.sizes[sz].scanned_at||'')) {
+          mo.sizes[sz].done = r.qty_done||0;
+          mo.sizes[sz].worker = r.worker_name||'?';
+          mo.sizes[sz].shift = r.shift_name||'';
+          mo.sizes[sz].scanned_at = r.scanned_at;
+        }
+        mo.sizes[sz].order = Math.max(mo.sizes[sz].order, r.qty_order||0);
+      }
+      if(r.scanned_at>mo.lastScan) mo.lastScan=r.scanned_at;
+    }
+    // Compute totals
+    for(const m of Object.values(molds)){
+      m.totalDone=Object.values(m.sizes).reduce((s,v)=>s+v.done,0);
+      m.totalOrder=Object.values(m.sizes).reduce((s,v)=>s+v.order,0);
+      m.pct=m.totalOrder>0?Math.min(100,Math.round(m.totalDone/m.totalOrder*100)):0;
+    }
+    _wipRaw = Object.values(molds);
+    filterWIP(document.getElementById('wip-filter')?.value||'');
+  } catch(e) {
+    el.innerHTML=`<div class="empty" style="color:var(--red)">Lỗi: ${e.message}</div>`;
+  }
+}
+function filterWIP(q) {
+  const fq=(q||'').toLowerCase().trim();
+  const sort=(document.getElementById('wip-sort')?.value)||'pct_desc';
+  let data=fq?_wipRaw.filter(m=>m.mold.toLowerCase().includes(fq)||[...m.rpros].some(r=>r.toLowerCase().includes(fq))):_wipRaw;
+  data=[...data];
+  if(sort==='pct_desc') data.sort((a,b)=>b.pct-a.pct);
+  else if(sort==='pct_asc') data.sort((a,b)=>a.pct-b.pct);
+  else if(sort==='qty_desc') data.sort((a,b)=>b.totalDone-a.totalDone);
+  else data.sort((a,b)=>(b.lastScan||'').localeCompare(a.lastScan||''));
+  const el=document.getElementById('wip-list');
+  if(!data.length){el.innerHTML='<div class="empty"><div class="empty-icon">🏭</div>Không có dữ liệu</div>';return;}
+  el.innerHTML=data.map(m=>{
+    const col=m.pct>=100?'var(--green)':m.pct>=80?'var(--red)':m.pct>=60?'var(--warn)':'var(--accent)';
+
+    // ── Group sizes theo khuôn OVN inventory (như v19) ──
+    const { inv } = findOvnInventory(m.mold);
+    const grouped = inv ? isGroupedMold(inv) : false;
+    // Build group map: groupLabel → {done, order, worker, at}
+    const groupMap = {};
+    const groupOrder = [];
+    for(const [sz, v] of Object.entries(m.sizes).sort((a,b)=>parseFloat(a[0])-parseFloat(b[0]))){
+      let groupLabel;
+      if(grouped && inv){
+        const g = mapSizeToGroup(parseFloat(sz), inv);
+        groupLabel = g ? g : (sz+'#');
+      } else {
+        groupLabel = sz+'#';
+      }
+      if(!groupMap[groupLabel]){groupMap[groupLabel]={done:0,order:0,worker:v.worker,shift:v.shift||'',at:v.scanned_at,szList:[]};groupOrder.push(groupLabel);}
+      const gv = groupMap[groupLabel];
+      gv.done += v.done||0;
+      gv.order += v.order||0;
+      gv.szList.push(sz);
+      if((v.scanned_at||'')>(gv.at||'')) {gv.at=v.scanned_at;gv.worker=v.worker;gv.shift=v.shift||gv.shift;}
+    }
+
+    const sizeChips=groupOrder.map(gl=>{
+      const gv=groupMap[gl];
+      const done=gv.order>0&&gv.done>=gv.order;
+      const chipCol=done?'var(--green)':gv.done>0?'var(--accent)':'var(--text2)';
+      const timeStr=gv.at?new Date(gv.at).toLocaleTimeString('vi-VN',{hour:'2-digit',minute:'2-digit'}):'';
+      const workerStr=gv.worker&&gv.worker!=='?'?`NV-${gv.worker}`:'';
+      const shiftStr=gv.shift?` ${gv.shift}`:'';
+      // Format label đồng bộ V19: "6-7" → "6#-7#", "3.5" → "3.5#"
+      const displayLabel = fmtGroupLabel(gl);
+      const tooltip=`${displayLabel}: ${gv.done}/${gv.order} đôi${workerStr?' · '+workerStr+shiftStr:''}${timeStr?' · '+timeStr:''}`;
+      return `<div style="background:var(--bg4);border:1px solid ${done?'rgba(0,232,122,.3)':gv.done>0?'rgba(0,207,255,.2)':'var(--border)'};border-radius:6px;padding:4px 7px;min-width:0" title="${tooltip}">
+        <div style="font-family:var(--mono);font-size:10px;font-weight:800;color:${chipCol}">${displayLabel} · ${gv.done}<span style="color:var(--text3);font-weight:400">/${gv.order}</span></div>
+        ${workerStr||timeStr?`<div style="font-size:9px;color:var(--text3);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${workerStr}${shiftStr}${timeStr?' '+timeStr:''}</div>`:''}
+      </div>`;
+    }).join('');
+
+    const rpros=[...m.rpros].slice(0,3).join(', ')+(m.rpros.size>3?` +${m.rpros.size-3}…`:'');
+    const workerShiftStr=[...m.workers].map(w=>w+(m.workerShifts&&m.workerShifts[w]?' '+m.workerShifts[w]:'')).join(', ')||'?';
+    return `<div class="wip-row">
+      <div class="wip-top">
+        <div>
+          <div class="wip-mold">${m.mold}</div>
+          <div class="wip-meta">${rpros} · NV: ${workerShiftStr} · ${timeAgo(m.lastScan)}</div>
+        </div>
+        <div>
+          <div class="wip-qty" style="color:${col}">${m.pct}%</div>
+          <div style="font-size:10px;color:var(--text3);text-align:right">${m.totalDone}/${m.totalOrder}</div>
+        </div>
+      </div>
+      <div class="wip-bar-wrap">
+        <div class="wip-bar"><div class="wip-bar-fill" style="width:${m.pct}%;background:${col}"></div></div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(80px,1fr));gap:4px;margin-top:6px">${sizeChips}</div>
+    </div>`;
+  }).join('');
+}
+
+// ══════════════════════════════════════════════════════════
+// TREND SIZE BY SECTION
+// ══════════════════════════════════════════════════════════
+// ── Section filter state (3 nút LAM/PRE/MOLD) ──
+const _trendSecMap = { LAM:'3.WIP SAU LAMINATION', PRE:'4.WIP SAU PREFITTING', MOLD:'5.WIP IN MOLDING' };
+let _trendSecActive = new Set(['LAM','PRE','MOLD']);
+function toggleTrendSec(btn){
+  const sec = btn.dataset.sec;
+  if(_trendSecActive.has(sec)){
+    if(_trendSecActive.size===1) return; // giữ ít nhất 1
+    _trendSecActive.delete(sec); btn.classList.remove('active');
+  } else {
+    _trendSecActive.add(sec); btn.classList.add('active');
+  }
+  // re-run với input hiện tại — không đụng logic gốc
+  const v = document.getElementById('trend-rpro-inp').value||'';
+  if(v.length>=3) onTrendInput(v);
+}
+function _trendStatusAllowed(status){
+  if(!status) return false;
+  for(const k of _trendSecActive){ if(status===_trendSecMap[k]) return true; }
+  return false;
+}
+
+function onTrendInput(val) {
+  if (!val || val.trim().length < 3) {
+    document.getElementById('trend-result').innerHTML = '<div class="empty" style="padding:24px 0"><div class="empty-icon">📊</div>Nhập RPRO hoặc mold để xem phân bổ size</div>';
+    document.getElementById('trend-section-card').style.display='none';
+    document.getElementById('trend-live-card').style.display='none';
+    _trendLiveQuery=null;
+    return;
+  }
+  const raw = val.trim();
+  // ── Multi-RPRO: RPRO-XXX/RPRO-YYY/... → OR logic (copy V19 applyTrendFilters) ──
+  const tokens = raw.indexOf('/') !== -1
+    ? raw.split('/').map(t => t.trim().toUpperCase()).filter(Boolean)
+    : [raw.trim().toUpperCase()];
+
+  const matchOrder = (o) => {
+    const blob = ((o.rpro||'')+' '+(o.mold_type||'')+' '+(o.brand||'')+' '+(o.customer||'')).toUpperCase();
+    return tokens.some(t =>
+      blob.includes(t) ||
+      extractMoldCode(o.mold_type||'').includes(t) ||
+      moldCodesMatch(o.mold_type||'', t)
+    );
+  };
+
+  const orders = _db.orders.filter(o => _trendStatusAllowed(o.status) && matchOrder(o));
+
+  if(!orders.length){
+    document.getElementById('trend-result').innerHTML='<div class="empty"><div class="empty-icon">🔍</div>Không tìm thấy đơn nào trong section đã chọn</div>';
+    document.getElementById('trend-section-card').style.display='none';
+    document.getElementById('trend-live-card').style.display='none';
+    _trendLiveQuery=null;
+    return;
+  }
+  renderTrend(orders);
+  // QTY MOLD LIVE — gom mã khuôn từ orders match, query scan_records
+  _trendLiveQuery = raw.toUpperCase();
+  _trendLiveOrders = orders;
+  loadTrendLive();
+}
+function clearTrend(){
+  document.getElementById('trend-rpro-inp').value='';
+  document.getElementById('trend-result').innerHTML='<div class="empty" style="padding:24px 0"><div class="empty-icon">📊</div>Nhập RPRO hoặc mold để xem phân bổ size</div>';
+  document.getElementById('trend-section-card').style.display='none';
+  document.getElementById('trend-live-card').style.display='none';
+  _trendLiveQuery=null;
+}
+function renderTrend(orders) {
+  // ── Merge sizes với group theo khuon_inventory (giống v19 buildTrendPivot) ──
+  // Với mỗi order: lấy OVN inv → nếu khuôn grouped (3-SIZE) → map size → group label
+  // Nếu khuôn single → giữ nguyên size lẻ. Tránh fallback ±0.5 gộp nhầm 2 size lẻ.
+  const invCache = new Map();
+  const getInv = (mold) => {
+    if (invCache.has(mold)) return invCache.get(mold);
+    const res = findOvnInventory(mold || '');
+    invCache.set(mold, res);
+    return res;
+  };
+  const labelFor = (sz, inv) => {
+    const sNum = parseFloat(sz);
+    if (!isNaN(sNum) && inv) {
+      const grouped = isGroupedMold(inv);
+      if (grouped) {
+        const g = mapSizeToGroup(sNum, inv);
+        if (g) return g; // return raw group label for grouping; format later
+      }
+    }
+    return String(sz);
+  };
+
+  const merged={};
+  let totalQty=0;
+  for(const o of orders){
+    const { inv } = getInv(o.mold_type || '');
+    for(const[sz,qty] of Object.entries(o.sizes||{})){
+      if(!qty) continue;
+      const label = labelFor(sz, inv);
+      merged[label]=(merged[label]||0)+qty;
+      totalQty+=qty;
+    }
+  }
+
+  // Sort: parse lo-bound numeric (e.g. "6-7" → 6, "3.5" → 3.5)
+  const sortLabel = (l) => {
+    const c = String(l).replace(/#/g,'').trim();
+    return parseFloat(c.split('-')[0]) || 0;
+  };
+  const sorted=Object.entries(merged).sort((a,b)=>sortLabel(a[0])-sortLabel(b[0]));
+  const maxQty=Math.max(...Object.values(merged),1);
+
+  // Format display: "6-7" → "6#-7#", "3.5" → "3.5#", với grouped → compact label (đồng bộ V19)
+  const fmtLabel = (l) => {
+    const c = String(l).replace(/#/g,'').trim();
+    if (c.includes('-')) {
+      const [a,b] = c.split('-').map(s=>s.trim());
+      return `${a}#-${b}#`;
+    }
+    return `${c}#`;
+  };
+
+  // Summary
+  const el=document.getElementById('trend-result');
+  el.innerHTML=`<div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
+    <div class="mf"><div class="mf-l">Tổng đơn</div><div class="mf-v c-acc">${orders.length}</div></div>
+    <div class="mf"><div class="mf-l">Tổng qty</div><div class="mf-v c-grn">${totalQty}</div></div>
+    <div class="mf"><div class="mf-l">Số size/nhóm</div><div class="mf-v">${sorted.length}</div></div>
+  </div>
+  <div class="sz-head" style="margin-bottom:8px">PHÂN BỔ SIZE (% tổng)</div>
+  ${sorted.map(([sz,qty])=>{
+    const pct=Math.round(qty/totalQty*100);
+    const barPct=Math.round(qty/maxQty*100);
+    const col=barPct>=80?'var(--green)':barPct>=50?'var(--accent)':barPct>=25?'var(--warn)':'var(--text3)';
+    return `<div class="trend-bar-row">
+      <div class="trend-sz-lbl" style="width:66px;font-size:11px;font-family:var(--mono);font-weight:700;color:var(--text)">${fmtLabel(sz)}</div>
+      <div class="trend-bar-outer">
+        <div class="trend-bar-inner" style="width:${barPct}%;background:${col}">
+          <span class="trend-bar-pct">${pct}%</span>
+        </div>
+      </div>
+      <div class="trend-qty-lbl">${qty} đôi</div>
+    </div>`;
+  }).join('')}`;
+
+  // Section breakdown — group orders by finish_date_ppc, sizes gom theo OVN group label
+  const byDate={};
+  for(const o of orders){
+    const key=o.finish_date_ppc||o.molding_ppc||'N/A';
+    if(!byDate[key]) byDate[key]={label:key,orders:[],sizes:{},molds:new Set()};
+    byDate[key].orders.push(o);
+    const mold = o.mold_type || '';
+    const { inv: secInv } = getInv(mold);
+    if (mold) byDate[key].molds.add(mold);
+    for(const[sz,qty] of Object.entries(o.sizes||{})){
+      if(!qty) continue;
+      const grpLabel = labelFor(sz, secInv);
+      byDate[key].sizes[grpLabel]=(byDate[key].sizes[grpLabel]||0)+qty;
+    }
+  }
+  const normLabel = (v) => String(v||'').replace(/#/g,'').trim();
+  // ── Qty Mold Live theo group label — copy V19 (Trend Size by Section) ──
+  // Tính 1 lần cho TOÀN BỘ orders match (không bó theo finish date),
+  // dedupe theo mã khuôn vật lý, cộng SLOTS (không đếm máy).
+  const liveByGroup = {};
+  {
+    const liveStatus = _db.live_status || {};
+    const matchedLiveKeys = (moldType) => {
+      const keys = new Set();
+      for (const machine of Object.values(liveStatus)) {
+        for (const moldBase of Object.keys((machine && machine.molds) || {})) {
+          if (!moldBase) continue;
+          if (moldCodesMatch(moldType, moldBase)) keys.add(String(moldBase).toUpperCase());
+        }
+      }
+      if (!keys.size) {
+        const core = String(extractMoldCode(moldType||'')||'').toUpperCase();
+        if (core) keys.add(core);
+      }
+      return [...keys].sort();
+    };
+    const seenMolds = new Set();
+    for (const o of orders) {
+      const moldType = String((o && o.mold_type) || '').trim();
+      if (!moldType) continue;
+      const liveKeys = matchedLiveKeys(moldType);
+      const dedupeKey = liveKeys.join('|');
+      if (!dedupeKey || seenMolds.has(dedupeKey)) continue;
+      seenMolds.add(dedupeKey);
+
+      const { inv } = getInv(moldType);
+      // qtyMap { rawSize → tổng slots } gom từ live_status theo mã khuôn match
+      const qtyMap = {};
+      for (const machine of Object.values(liveStatus)) {
+        for (const [moldBase, sizeList] of Object.entries((machine && machine.molds) || {})) {
+          if (!liveKeys.includes(String(moldBase).toUpperCase())) continue;
+          for (const entry of (sizeList || [])) {
+            const rawSize = entry && typeof entry === 'object'
+              ? (entry.size ?? entry.size_label ?? entry.label ?? '')
+              : entry;
+            const sz = String(rawSize||'').replace(/#/g,'').trim();
+            if (!sz) continue;
+            const slots = entry && typeof entry === 'object'
+              ? (parseInt(entry.slots ?? entry.qty ?? entry.count ?? 1) || 1)
+              : 1;
+            qtyMap[sz] = (qtyMap[sz] || 0) + slots;
+          }
+        }
+      }
+      for (const [rawSize, q] of Object.entries(qtyMap)) {
+        if (!q) continue;
+        const label = labelFor(rawSize, inv);
+        const key = normLabel(label);
+        liveByGroup[key] = (liveByGroup[key] || 0) + q;
+      }
+    }
+  }
+  const liveCountFor = (_s, gl) => liveByGroup[normLabel(gl)] || 0;
+  const sections=Object.values(byDate).sort((a,b)=>a.label.localeCompare(b.label));
+  if(sections.length){
+    const sc=document.getElementById('trend-section-card');
+    sc.style.display='';
+    document.getElementById('trend-section-title').textContent=`PHÂN BỔ THEO FINISH DATE (${sections.length} nhóm)`;
+    document.getElementById('trend-section-body').innerHTML=sections.map(s=>{
+      const total=Object.values(s.sizes).reduce((a,b)=>a+b,0);
+      const sizeStr=Object.entries(s.sizes)
+        .sort((a,b)=>sortLabel(a[0])-sortLabel(b[0]))
+        .map(([gl,q])=>{
+          const live = liveCountFor(s, gl);
+          const liveBadge = live>0
+            ? `<span style="color:var(--accent);margin-left:6px;font-weight:700" title="Số khuôn size này đang chạy trên máy từ live_status V19">· live ${live}</span>`
+            : `<span style="color:var(--text3);margin-left:6px" title="Hiện chưa có khuôn size này trên máy">· live 0</span>`;
+          return `<span style="font-family:var(--mono);font-size:10px;padding:3px 8px;background:var(--bg4);border:1px solid var(--border2);border-radius:5px;color:var(--text);font-weight:700">${fmtLabel(gl)}<span style="color:var(--green);margin-left:4px">${q}</span><span style="color:var(--text3);font-size:9px">đ</span>${liveBadge}</span>`;
+        }).join('');
+      return `<div style="margin-bottom:12px;padding:10px;background:var(--bg3);border:1px solid var(--border);border-radius:8px">
+        <div style="font-size:10px;font-weight:700;color:var(--accent);font-family:var(--mono);margin-bottom:8px">📅 ${s.label} · <span style="color:var(--text2)">${s.orders.length} đơn</span> · <span style="color:var(--green)">${total} đôi</span></div>
+        <div style="display:flex;flex-wrap:wrap;gap:4px">${sizeStr}</div>
+      </div>`;
+    }).join('');
+  } else {
+    document.getElementById('trend-section-card').style.display='none';
+  }
+}
+
+// ══════════════════════════════════════════════════════════
+// QTY MOLD LIVE (trend panel) — copy V19 trend size by section
+// Realtime: tự cập nhật khi có scan_records mới HOẶC khi V19
+// đẩy shared_datasets (đã có _rtChannel ở subscribeRealtime).
+// ══════════════════════════════════════════════════════════
+let _trendLiveQuery = null;
+let _trendLiveOrders = [];
+let _trendLiveRT = null;
+
+async function reloadTrendLive(){ return loadTrendLive(); }
+
+async function loadTrendLive(){
+  const card = document.getElementById('trend-live-card');
+  const body = document.getElementById('trend-live-body');
+  if(!_trendLiveQuery || !_trendLiveOrders || !_trendLiveOrders.length){
+    card.style.display='none'; return;
+  }
+  card.style.display='';
+  if(!_sb){ body.innerHTML='<div class="empty" style="font-size:11px;color:var(--red)">Chưa kết nối</div>'; return; }
+  body.innerHTML='<div class="empty" style="padding:12px 0"><div class="spinner"></div></div>';
+
+  // Tập hợp mã khuôn + RPRO từ orders đã match (theo section filter)
+  const moldSet = new Set();
+  const rproSet = new Set();
+  for(const o of _trendLiveOrders){
+    const mc = extractMoldCode(o.mold_type||'');
+    if(mc) moldSet.add(mc);
+    if(o.rpro) rproSet.add(String(o.rpro).toUpperCase());
+  }
+  if(!moldSet.size){ body.innerHTML='<div class="empty" style="font-size:11px">Không xác định mã khuôn</div>'; return; }
+
+  try{
+    // Query scan_records cho các mold liên quan
+    const molds = [...moldSet];
+    const { data, error } = await _sb.from('scan_records')
+      .select('mold_code,rpro_code,size_label,qty_done,qty_order,scanned_at')
+      .in('mold_code', molds)
+      .order('scanned_at',{ascending:false})
+      .limit(2000);
+    if(error) throw error;
+
+    // Lọc lại theo RPRO của các đơn (nếu có) — chính xác per đơn
+    const rows = (data||[]).filter(r => !rproSet.size || rproSet.has(String(r.rpro_code||'').toUpperCase()));
+
+    // Group theo (mold, rpro, size) — lấy bản ghi MỚI NHẤT làm done/order (giống loadWIP)
+    const latest = {}; // key → {mold,rpro,size,done,order,at}
+    for(const r of rows){
+      const k = (r.mold_code||'')+'|'+(r.rpro_code||'')+'|'+(r.size_label||'');
+      if(!latest[k] || (r.scanned_at||'') > (latest[k].at||'')){
+        latest[k] = { mold:r.mold_code, rpro:r.rpro_code, size:r.size_label, done:r.qty_done||0, order:r.qty_order||0, at:r.scanned_at };
+      } else {
+        latest[k].order = Math.max(latest[k].order, r.qty_order||0);
+      }
+    }
+
+    // Gom theo group label theo OVN inventory (giống V19 buildTrendPivot / renderTrend)
+    const invCache = new Map();
+    const getInv = (mold)=>{ if(invCache.has(mold)) return invCache.get(mold); const res=findOvnInventory(mold||''); invCache.set(mold,res); return res; };
+    const labelFor = (sz, inv) => {
+      const sNum = parseFloat(sz);
+      if(!isNaN(sNum) && inv){
+        if(isGroupedMold(inv)){
+          const g = mapSizeToGroup(sNum, inv);
+          if(g) return g;
+        }
+      }
+      return String(sz);
+    };
+    const fmtLabel = (l) => {
+      const c = String(l).replace(/#/g,'').trim();
+      if(c.includes('-')){ const [a,b]=c.split('-').map(s=>s.trim()); return `${a}#-${b}#`; }
+      return `${c}#`;
+    };
+
+    const merged = {}; // label → {done, order}
+    let totalDone = 0, totalOrder = 0;
+    for(const v of Object.values(latest)){
+      const { inv } = getInv(v.mold||'');
+      const label = labelFor(v.size, inv);
+      if(!merged[label]) merged[label] = { done:0, order:0 };
+      merged[label].done  += v.done||0;
+      merged[label].order += v.order||0;
+      totalDone  += v.done||0;
+      totalOrder += v.order||0;
+    }
+
+    if(!Object.keys(merged).length){
+      body.innerHTML = '<div class="empty" style="font-size:11px;padding:14px 0">Chưa có scan_records cho các mã này</div>';
+    } else {
+      const sortLabel = (l)=>{ const c=String(l).replace(/#/g,'').trim(); return parseFloat(c.split('-')[0])||0; };
+      const sorted = Object.entries(merged).sort((a,b)=>sortLabel(a[0])-sortLabel(b[0]));
+      const pctTot = totalOrder>0 ? Math.round(totalDone/totalOrder*100) : 0;
+      const pctCol = pctTot>=100?'var(--green)':pctTot>=80?'var(--red)':pctTot>=60?'var(--warn)':'var(--accent)';
+      let html = `<div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap">
+        <div class="mf"><div class="mf-l">Mã khuôn</div><div class="mf-v c-acc">${moldSet.size}</div></div>
+        <div class="mf"><div class="mf-l">Done LIVE</div><div class="mf-v c-grn">${totalDone}</div></div>
+        <div class="mf"><div class="mf-l">Order</div><div class="mf-v">${totalOrder}</div></div>
+        <div class="mf"><div class="mf-l">% LIVE</div><div class="mf-v" style="color:${pctCol}">${pctTot}%</div></div>
+      </div>`;
+      html += sorted.map(([sz,v])=>{
+        const pct = v.order>0 ? Math.min(100, Math.round(v.done/v.order*100)) : 0;
+        const col = pct>=100?'var(--green)':pct>=80?'var(--red)':pct>=60?'var(--warn)':v.done>0?'var(--accent)':'var(--text3)';
+        return `<div class="trend-live-row">
+          <div class="trend-live-sz">${fmtLabel(sz)}</div>
+          <div class="trend-live-bar"><div class="trend-live-bar-in" style="width:${pct}%;background:${col}"></div></div>
+          <div class="trend-live-qty"><span style="color:${col};font-weight:800">${v.done}</span><span style="color:var(--text3)">/${v.order}</span> · ${pct}%</div>
+        </div>`;
+      }).join('');
+      body.innerHTML = html;
+    }
+
+    // Realtime — subscribe scan_records 1 lần cho card này
+    if(!_trendLiveRT){
+      try{
+        _trendLiveRT = _sb.channel('trend_live_scan_rt')
+          .on('postgres_changes', { event:'*', schema:'public', table:'scan_records' }, (payload)=>{
+            const mc = payload?.new?.mold_code || payload?.old?.mold_code;
+            if(_trendLiveQuery && mc && moldSet.has(mc)){
+              // debounce nhẹ
+              clearTimeout(_trendLiveRT._t);
+              _trendLiveRT._t = setTimeout(()=>loadTrendLive(), 350);
+            }
+          })
+          .subscribe();
+      }catch(e){ console.warn('trend live RT:', e); }
+    }
+  }catch(e){
+    body.innerHTML = `<div class="empty" style="font-size:11px;color:var(--red)">Lỗi: ${e.message}</div>`;
+  }
+}
+
+// ══════════════════════════════════════════════════════════
+// REQUEST MOLD — yêu cầu thêm khuôn size để out WIP
+// ══════════════════════════════════════════════════════════
+let _reqRaw=[], _reqFilter='all';
+async function submitRequest() {
+  const mold=(document.getElementById('req-mold-inp').value||'').trim().toUpperCase();
+  const size=(document.getElementById('req-size-inp').value||'').trim();
+  const note=(document.getElementById('req-note-inp').value||'').trim();
+  if(!mold){toast('Nhập mã khuôn','err');return;}
+  if(!size){toast('Nhập size cần khuôn','err');return;}
+  if(!_worker){toast('Nhập mã NV trước','err');openWorkerModal();return;}
+  if(!_sb){toast('Chưa kết nối','err');return;}
+  try {
+    const{error}=await _sb.from('mold_requests').insert({
+      mold_code:mold, size_label:size, note:note||null,
+      worker_name:_worker, status:'pending'
+    });
+    if(error) throw error;
+    toast(`✅ Đã gửi yêu cầu khuôn ${mold} size ${size}`,'ok');
+    document.getElementById('req-mold-inp').value='';
+    document.getElementById('req-size-inp').value='';
+    document.getElementById('req-note-inp').value='';
+    loadRequests();
+  } catch(e){
+    toast('❌ '+e.message,'err');
+  }
+}
+async function loadRequests(){
+  const el=document.getElementById('req-list');
+  el.innerHTML='<div class="empty"><div class="spinner"></div></div>';
+  if(!_sb){el.innerHTML='<div class="empty" style="color:var(--red)">Chưa kết nối</div>';return;}
+  try{
+    const{data,error}=await _sb.from('mold_requests').select('*').order('created_at',{ascending:false}).limit(100);
+    if(error) throw error;
+    _reqRaw=data||[];
+    filterReqs(_reqFilter);
+  }catch(e){el.innerHTML=`<div class="empty" style="color:var(--red)">Lỗi: ${e.message}</div>`;}
+}
+function filterReqs(f){
+  _reqFilter=f;
+  const el=document.getElementById('req-list');
+  const data=f==='all'?_reqRaw:_reqRaw.filter(r=>r.status===f);
+  if(!data.length){el.innerHTML='<div class="empty"><div class="empty-icon">📦</div>Không có yêu cầu</div>';return;}
+  el.innerHTML=data.map(r=>{
+    const mine=r.worker_name===_worker;
+    return `<div class="req-item${mine?' hi-mine':''}">
+      <div class="req-top">
+        <div>
+          <div class="req-mold">${r.mold_code||'?'} · size ${r.size_label||'?'}</div>
+          <div class="req-meta">NV-${r.worker_name||'?'}${r.shift_name?' Ca '+r.shift_name:''} · ${timeAgo(r.created_at)}${r.note?` · ${r.note}`:''}</div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">
+          <span class="req-status ${r.status==='done'?'done':'pending'}">${r.status==='done'?'✅ Xong':'⏳ Chờ'}</span>
+          ${r.status==='pending'&&mine?`<button class="btn btn-ghost btn-sm" style="font-size:9px;padding:2px 8px" onclick="resolveRequest(${r.id})">✓ Done</button>`:''}
+          ${mine?`<button class="btn btn-ghost btn-sm" style="font-size:9px;padding:2px 8px;color:var(--red);border-color:rgba(255,61,90,.3)" onclick="deleteRequest(${r.id})">🗑 Xóa</button>`:''}
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+async function resolveRequest(id){
+  if(!_sb) return;
+  try{
+    const{error}=await _sb.from('mold_requests').update({status:'done',resolved_at:new Date().toISOString()}).eq('id',id);
+    if(error) throw error;
+    toast('✅ Đã cập nhật xong','ok');
+    loadRequests();
+  }catch(e){toast('❌ '+e.message,'err');}
+}
+async function deleteRequest(id){
+  if(!_sb) return;
+  if(!confirm('Xóa yêu cầu này?')) return;
+  try{
+    const{error}=await _sb.from('mold_requests').delete().eq('id',id);
+    if(error) throw error;
+    toast('🗑 Đã xóa','ok');
+    loadRequests();
+  }catch(e){toast('❌ '+e.message,'err');}
+}
+
+// ══════════════════════════════════════════════════════════
+// TD GENDER DASHBOARD — matching v19 gender logic
+// ══════════════════════════════════════════════════════════
+function renderGenderDash() {
+  const orders = _db.orders; // already filtered to 3 WIP statuses
+
+  if (!orders.length) {
+    document.getElementById('gender-kpi').innerHTML = '';
+    document.getElementById('gender-stage').innerHTML = '';
+    document.getElementById('gender-list').innerHTML =
+      '<div class="empty"><div class="empty-icon">👟</div>Chưa có dữ liệu WIP</div>';
+    return;
+  }
+
+  // Count by gender type
+  const counts = { women:0, men:0, unisex:0, other:0 };
+  const byGender = { women:[], men:[], unisex:[], other:[] };
+  for (const o of orders) {
+    const g = o.gender || '';
+    if (isWomenGender(g))      { counts.women++;  byGender.women.push(o); }
+    else if (isMenGender(g))   { counts.men++;    byGender.men.push(o); }
+    else if (isUnisexGender(g)){ counts.unisex++; byGender.unisex.push(o); }
+    else                       { counts.other++;  byGender.other.push(o); }
+  }
+
+  // KPI cards
+  const kpiItems = [
+    { label:'Women / Woven', value:counts.women,  color:'#ff6b9d', icon:'👩' },
+    { label:'Men',            value:counts.men,    color:'#74b9ff', icon:'👨' },
+    { label:'Unisex',         value:counts.unisex, color:'#9b80ff', icon:'👥' },
+    { label:'Khác / N/A',    value:counts.other,  color:'#666',    icon:'❓' },
+  ];
+  document.getElementById('gender-kpi').innerHTML = kpiItems.map(k=>`
+    <div style="background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:12px;position:relative;overflow:hidden">
+      <div style="position:absolute;top:0;left:0;right:0;height:2px;background:${k.color};opacity:.7"></div>
+      <div style="font-size:16px;margin-bottom:4px">${k.icon}</div>
+      <div style="font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">${k.label}</div>
+      <div style="font-size:22px;font-weight:800;font-family:var(--mono);color:${k.color}">${k.value}</div>
+      <div style="font-size:9px;color:var(--text3);margin-top:2px">${orders.length>0?Math.round(k.value/orders.length*100):0}% tổng</div>
+    </div>`).join('');
+
+  // Stage breakdown by gender
+  const stageDef = [
+    { key:'3.WIP SAU LAMINATION',  label:'LAM',  color:'#00d4ff' },
+    { key:'4.WIP SAU PREFITTING',  label:'PRE',  color:'#ffd166' },
+    { key:'5.WIP IN MOLDING',      label:'MOLD', color:'#00ff88' },
+  ];
+  const genderTypes = [
+    { key:'women',  label:'Women',  color:'#ff6b9d', orders:byGender.women  },
+    { key:'men',    label:'Men',    color:'#74b9ff', orders:byGender.men    },
+    { key:'unisex', label:'Unisex', color:'#9b80ff', orders:byGender.unisex },
+    { key:'other',  label:'Other',  color:'#666',    orders:byGender.other  },
+  ].filter(g=>g.orders.length>0);
+
+  let stageHTML = `<div style="font-family:var(--mono);font-size:9px;font-weight:700;letter-spacing:1px;color:var(--text3);text-transform:uppercase;margin-bottom:8px">PHÂN BỔ THEO GIAI ĐOẠN</div>`;
+  for (const gt of genderTypes) {
+    const stageCounts = stageDef.map(s=>({
+      ...s, count: gt.orders.filter(o=>o.status===s.key).length
+    }));
+    stageHTML += `
+      <div style="margin-bottom:8px;padding:8px 10px;background:var(--bg3);border:1px solid var(--border);border-radius:8px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+          <span style="font-size:12px;font-weight:700;font-family:var(--mono);color:${gt.color}">${gt.label}</span>
+          <span style="font-size:10px;color:var(--text3)">${gt.orders.length} đơn</span>
+        </div>
+        <div style="display:flex;gap:6px">
+          ${stageCounts.map(s=>`
+            <div style="flex:1;background:${s.color}18;border:1px solid ${s.color}44;border-radius:6px;padding:5px 6px;text-align:center">
+              <div style="font-size:9px;color:${s.color};font-weight:700;font-family:var(--mono)">${s.label}</div>
+              <div style="font-size:16px;font-weight:800;font-family:var(--mono);color:${s.color}">${s.count}</div>
+            </div>`).join('')}
+        </div>
+      </div>`;
+  }
+  document.getElementById('gender-stage').innerHTML = stageHTML;
+
+  // Order list grouped by gender
+  let listHTML = '';
+  for (const gt of genderTypes) {
+    const womenWithReduce = gt.orders.filter(o=>o.should_reduce);
+    listHTML += `
+      <div style="font-family:var(--mono);font-size:9px;font-weight:700;letter-spacing:1px;color:${gt.color};text-transform:uppercase;margin:10px 0 6px;display:flex;align-items:center;gap:8px">
+        ${gt.label} <span style="flex:1;height:1px;background:${gt.color}33"></span>
+        <span style="color:var(--text3);font-size:9px">${gt.orders.length} đơn${womenWithReduce.length>0?` · <span style="color:var(--orange)">⬇ -1.5: ${womenWithReduce.length}</span>`:''}</span>
+      </div>`;
+    for (const o of gt.orders) {
+      const statusLabel=(o.status||'').includes('LAM')?'LAM':(o.status||'').includes('PRE')?'PRE':'MOLD';
+      const statusColor=statusLabel==='LAM'?'#00d4ff':statusLabel==='PRE'?'#ffd166':'#00ff88';
+      listHTML += `
+        <div style="padding:8px 10px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;margin-bottom:5px;display:flex;align-items:center;gap:8px">
+          <div style="flex:1;min-width:0">
+            <div style="font-family:var(--mono);font-size:12px;font-weight:800;color:var(--accent)">${o.rpro}</div>
+            <div style="font-size:10px;color:var(--text2)">${o.mold_type||'?'} · ${o.customer||''}</div>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px">
+            <span style="background:${statusColor}22;color:${statusColor};border:1px solid ${statusColor}55;border-radius:4px;padding:1px 6px;font-size:9px;font-weight:700;font-family:var(--mono)">${statusLabel}</span>
+            ${o.should_reduce?`<span style="font-size:9px;color:var(--orange);font-family:var(--mono);font-weight:700">⬇ -1.5</span>`:''}
+          </div>
+        </div>`;
+    }
+  }
+  document.getElementById('gender-list').innerHTML = listHTML || '<div class="empty"><div class="empty-icon">👟</div>Không có dữ liệu</div>';
+}
+
+// ══════════════════════════════════════════════════════════
+// COPY SQL HELPER
+// ══════════════════════════════════════════════════════════
+function copySql(){
+  const sql=document.getElementById('sql-snippet').textContent;
+  if(navigator.clipboard){navigator.clipboard.writeText(sql).then(()=>toast('✅ Đã copy SQL','ok'));}
+  else{toast('Chọn thủ công để copy','info');}
+}
+</script>
+</body>
+</html>
