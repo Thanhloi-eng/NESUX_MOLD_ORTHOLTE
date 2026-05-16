@@ -355,6 +355,45 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--s
 .req-status.done{background:var(--green-dim);color:var(--green);border:1px solid rgba(0,232,122,.3)}
 .req-meta{font-size:10px;color:var(--text3);margin-top:3px}
 
+/* ══ URGENT ORDERS ══ */
+.urg-card{background:var(--bg2);border:1.5px solid rgba(255,61,90,.3);border-radius:var(--radius);padding:14px;margin-bottom:12px;animation:fadeIn .2s ease}
+.urg-card.st-accepted{border-color:rgba(0,207,255,.4)}
+.urg-card.st-done{border-color:rgba(0,232,122,.35);opacity:.8}
+.urg-top{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px;flex-wrap:wrap}
+.urg-type-badge{font-family:var(--mono);font-size:10px;font-weight:800;padding:3px 10px;border-radius:20px;display:inline-flex;align-items:center;gap:4px}
+.urg-gap{background:rgba(255,61,90,.15);color:var(--red);border:1px solid rgba(255,61,90,.3)}
+.urg-bu{background:var(--purple-dim);color:var(--purple);border:1px solid rgba(176,108,255,.3)}
+.urg-status-pill{font-size:10px;font-weight:700;padding:3px 10px;border-radius:20px;font-family:var(--mono)}
+.urg-s-cho{background:var(--warn-dim);color:var(--warn);border:1px solid rgba(255,204,0,.3)}
+.urg-s-tiep{background:var(--accent-dim);color:var(--accent);border:1px solid rgba(0,207,255,.3)}
+.urg-s-done{background:var(--green-dim);color:var(--green);border:1px solid rgba(0,232,122,.3)}
+.urg-section-lbl{font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text3);margin:8px 0 4px}
+.urg-rpro-wrap{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:4px}
+.urg-rpro-chip{font-family:var(--mono);font-size:10px;padding:3px 8px;border-radius:5px;background:var(--bg3);border:1px solid var(--border2);color:var(--text2)}
+.urg-rpro-chip.done{background:rgba(0,232,122,.08);border-color:rgba(0,232,122,.3);color:var(--green);text-decoration:line-through;opacity:.65}
+.urg-mold-chip{font-family:var(--mono);font-size:10px;padding:3px 8px;border-radius:5px;background:var(--accent-dim);border:1px solid rgba(0,207,255,.2);color:var(--accent)}
+.urg-prio-bar{height:5px;background:rgba(255,255,255,.06);border-radius:3px;overflow:hidden;margin:4px 0}
+.urg-prio-fill-50{height:100%;width:50%;background:var(--warn);border-radius:3px}
+.urg-prio-fill-100{height:100%;width:100%;background:var(--red);border-radius:3px}
+.urg-who-box{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:8px 10px;font-size:11px;color:var(--text2);margin:6px 0}
+.urg-who-name{font-family:var(--mono);font-weight:700;color:var(--accent)}
+.urg-actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.urg-search-drop{max-height:190px;overflow-y:auto;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;margin-top:4px;display:none}
+.urg-drop-item{padding:9px 12px;border-bottom:1px solid var(--border);cursor:pointer;font-size:12px;transition:background .1s}
+.urg-drop-item:last-child{border-bottom:none}
+.urg-drop-item:hover{background:var(--bg4)}
+.urg-drop-rpro{font-family:var(--mono);font-weight:700;color:var(--accent);font-size:11px}
+.urg-drop-meta{font-size:10px;color:var(--text3)}
+.urg-sel-wrap{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px;min-height:24px}
+.urg-sel-chip{font-family:var(--mono);font-size:10px;padding:3px 8px;border-radius:5px;background:var(--accent-dim);border:1px solid rgba(0,207,255,.25);color:var(--accent);cursor:pointer;display:flex;align-items:center;gap:4px}
+.urg-sel-chip::after{content:'✕';font-size:9px;opacity:.5}
+.prio-sel-btn{flex:1;padding:9px 6px;border:1.5px solid var(--border2);border-radius:8px;background:var(--bg3);color:var(--text3);font-family:var(--mono);font-size:11px;font-weight:800;cursor:pointer;transition:all .15s;text-align:center}
+.prio-sel-btn.sel50{background:var(--warn-dim);border-color:var(--warn);color:var(--warn)}
+.prio-sel-btn.sel100{background:var(--red-dim);border-color:var(--red);color:var(--red)}
+.type-sel-btn{flex:1;padding:9px 6px;border:1.5px solid var(--border2);border-radius:8px;background:var(--bg3);color:var(--text3);font-family:var(--mono);font-size:11px;font-weight:800;cursor:pointer;transition:all .15s;text-align:center}
+.type-sel-btn.sel-gap{background:var(--red-dim);border-color:var(--red);color:var(--red)}
+.type-sel-btn.sel-bu{background:var(--purple-dim);border-color:var(--purple);color:var(--purple)}
+
 @media(prefers-color-scheme:light){
   :root{--bg:#f0f5fa;--bg2:#fff;--bg3:#eaf0f8;--bg4:#dde8f2;--border:#c8d8ea;--border2:#b0c8e0;--text:#1a2a3a;--text2:#4a6a85;--text3:#8aabbf}
 }
@@ -405,8 +444,8 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--s
   <button class="nav-btn" onclick="setTab('gender',this);renderGenderDash()">
     <span class="nb-icon">👟</span>Gender
   </button>
-  <button class="nav-btn" onclick="setTab('request',this);loadRequests()">
-    <span class="nb-icon">📦</span>Khuôn
+  <button class="nav-btn" onclick="setTab('request',this);loadUrgent()">
+    <span class="nb-icon">🚨</span>Đơn Gấp
   </button>
   <button class="nav-btn" onclick="openSetupWithPw()">
     <span class="nb-icon">⚙️</span>Cài đặt
@@ -541,6 +580,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--s
       <button class="inp-clear" id="lu-clear" onclick="document.getElementById('lu-inp').value='';onLookup('');document.getElementById('lu-clear').style.display='none'" style="display:none">✕</button>
     </div>
     <div class="lu-result" id="lu-result"></div>
+    <div id="lu-status-warn" style="display:none;margin-top:8px;padding:8px 12px;background:rgba(255,77,77,.12);border:1px solid rgba(255,77,77,.5);border-radius:8px;color:#ff4d4d;font-size:12px;font-weight:600;line-height:1.4"></div>
   </div>
 </div>
 
@@ -642,30 +682,81 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--s
 
 <!-- ═══════════ PANEL: REQUEST MOLD ═══════════ -->
 <div class="panel" id="panel-request">
-  <div class="card">
-    <div class="card-head">📦 Yêu cầu thêm khuôn size — Out WIP</div>
-    <div class="field-lbl">Mã khuôn cần thêm</div>
-    <input class="inp" id="req-mold-inp" placeholder="VD: OV-0229" style="margin-bottom:8px"
-      oninput="this.value=this.value.toUpperCase()" autocapitalize="characters">
-    <div class="field-lbl">Size cần thêm khuôn</div>
-    <input class="inp" id="req-size-inp" placeholder="VD: 9, 9.5, 10" style="margin-bottom:8px"
-      inputmode="decimal">
-    <div class="field-lbl">Lý do / Ghi chú</div>
-    <input class="inp" id="req-note-inp" placeholder="VD: Khuôn bị hỏng, thiếu qty..." style="margin-bottom:10px">
-    <button class="btn btn-full btn-green" onclick="submitRequest()">📤 Gửi yêu cầu khuôn</button>
+
+  <!-- ── FORM TẠO YÊU CẦU ── -->
+  <div class="card" id="urg-form-card">
+    <div class="card-head">🚨 Tạo yêu cầu — Đơn Gấp & Đơn Bù Gấp</div>
+
+    <!-- Người dùng hiện tại -->
+    <div id="urg-user-info" style="display:none;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:10px 12px;margin-bottom:12px">
+      <div style="font-size:9px;color:var(--text3);letter-spacing:1px;text-transform:uppercase;margin-bottom:4px">Người yêu cầu</div>
+      <div id="urg-user-display" style="font-family:var(--mono);font-size:13px;font-weight:700;color:var(--accent)"></div>
+      <div id="urg-user-title" style="font-size:10px;color:var(--text3);margin-top:2px"></div>
+    </div>
+    <div id="urg-no-access" style="display:none;background:var(--red-dim);border:1px solid rgba(255,61,90,.3);border-radius:8px;padding:10px 12px;margin-bottom:12px;font-size:12px;color:var(--red);text-align:center">
+      🔒 MSNV của bạn không có quyền tạo yêu cầu đơn gấp
+    </div>
+
+    <!-- Tìm & chọn đơn -->
+    <div class="field-lbl">Tìm & chọn đơn hàng</div>
+    <div class="inp-wrap" style="margin-bottom:0">
+      <input class="inp scan-inp" id="urg-search-inp"
+        placeholder="Gõ RPRO / Brand / Mã khuôn — hoặc paste nhiều RPRO..."
+        oninput="onUrgSearch(this.value)"
+        onkeydown="if(event.key==='Enter'){var v=this.value.trim();if(v)urgAddManual(v);}"
+        autocomplete="off" autocapitalize="off" style="padding-right:36px">
+      <button class="inp-clear" style="display:block" onclick="document.getElementById('urg-search-inp').value='';onUrgSearch('');document.getElementById('urg-search-drop').style.display='none'">✕</button>
+    </div>
+    <div id="urg-search-drop" class="urg-search-drop"></div>
+    <div id="urg-sel-wrap" class="urg-sel-wrap"></div>
+    <!-- Mã khuôn tự động -->
+    <div id="urg-mold-preview" style="display:none;margin-top:6px">
+      <div class="urg-section-lbl">Mã khuôn từ các đơn đã chọn</div>
+      <div id="urg-mold-chips" class="urg-rpro-wrap"></div>
+    </div>
+
+    <!-- Loại đơn -->
+    <div class="field-lbl" style="margin-top:12px">Loại đơn</div>
+    <div style="display:flex;gap:6px;margin-bottom:10px">
+      <button id="type-btn-gap" class="type-sel-btn" onclick="selectUrgType('gap')">🔴 Đơn hàng gấp</button>
+      <button id="type-btn-bu"  class="type-sel-btn" onclick="selectUrgType('bu')">🟣 Đơn bù gấp</button>
+    </div>
+
+    <!-- Mức độ ưu tiên -->
+    <div class="field-lbl">Mức độ ưu tiên</div>
+    <div style="display:flex;gap:6px;margin-bottom:6px">
+      <button id="prio-btn-50"  class="prio-sel-btn" onclick="selectUrgPrio(50)">⚡ 50% — Ưu tiên cao</button>
+      <button id="prio-btn-100" class="prio-sel-btn" onclick="selectUrgPrio(100)">🔥 100% — Khẩn cấp</button>
+    </div>
+    <div class="urg-prio-bar"><div id="urg-prio-fill" style="height:100%;width:0%;border-radius:3px;transition:all .3s"></div></div>
+    <div id="urg-prio-lbl" style="font-size:10px;color:var(--text3);margin-bottom:10px;font-family:var(--mono);margin-top:3px">Chưa chọn</div>
+
+    <!-- Thông tin thêm -->
+    <div class="field-lbl">Thông tin thêm</div>
+    <input class="inp" id="urg-note-inp"
+      placeholder="VD: Gấp vì xuất hàng ngày mai, cần xong trước 15h..."
+      style="margin-bottom:12px">
+
+    <button class="btn btn-full" id="urg-submit-btn"
+      onclick="submitUrgent()"
+      style="background:linear-gradient(135deg,var(--red),#c0392b);color:#fff;font-size:14px;font-weight:800;padding:14px;letter-spacing:.5px">
+      🚨 GỬI YÊU CẦU ĐƠN GẤP
+    </button>
   </div>
 
+  <!-- ── DANH SÁCH ── -->
   <div class="card">
     <div class="card-head">
-      Danh sách yêu cầu
-      <span class="ch-r" onclick="loadRequests()">🔄</span>
+      📋 Danh sách yêu cầu
+      <span class="ch-r" onclick="loadUrgent()">🔄</span>
     </div>
-    <div style="display:flex;gap:6px;margin-bottom:8px">
-      <button class="btn btn-ghost btn-sm" style="flex:1" onclick="filterReqs('all')">Tất cả</button>
-      <button class="btn btn-ghost btn-sm" style="flex:1" onclick="filterReqs('pending')">⏳ Chờ</button>
-      <button class="btn btn-ghost btn-sm" style="flex:1" onclick="filterReqs('done')">✅ Xong</button>
+    <div style="display:flex;gap:5px;margin-bottom:10px;flex-wrap:wrap">
+      <button class="btn btn-ghost btn-sm" style="flex:1" onclick="filterUrgent('all')">Tất cả</button>
+      <button class="btn btn-ghost btn-sm" style="flex:1" onclick="filterUrgent('Chờ xử lý')">⏳ Chờ</button>
+      <button class="btn btn-ghost btn-sm" style="flex:1" onclick="filterUrgent('Đã tiếp nhận')">🤝 Tiếp nhận</button>
+      <button class="btn btn-ghost btn-sm" style="flex:1" onclick="filterUrgent('Done')">✅ Done</button>
     </div>
-    <div id="req-list"><div class="empty"><div class="empty-icon">📦</div>Đang tải...</div></div>
+    <div id="urg-list"><div class="empty"><div class="empty-icon">🚨</div>Đang tải...</div></div>
   </div>
 </div>
 
@@ -747,7 +838,25 @@ CREATE TABLE IF NOT EXISTS public.mold_requests (
 ALTER TABLE public.scan_records ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.mold_requests ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "anon_all_scan" ON public.scan_records FOR ALL TO anon USING (true) WITH CHECK (true);
-CREATE POLICY "anon_all_req" ON public.mold_requests FOR ALL TO anon USING (true) WITH CHECK (true);</pre>
+CREATE POLICY "anon_all_req" ON public.mold_requests FOR ALL TO anon USING (true) WITH CHECK (true);
+
+-- ═══ URGENT ORDERS (Đơn Gấp & Đơn Bù Gấp) ═══
+CREATE TABLE IF NOT EXISTS public.urgent_orders (
+  id bigserial PRIMARY KEY,
+  rpro_codes text[],
+  mold_codes text,
+  order_type text,
+  priority_pct int,
+  note text,
+  worker_id text, worker_name text, worker_title text,
+  status text DEFAULT 'Chờ xử lý',
+  accepted_id text, accepted_name text, accepted_title text,
+  accepted_at timestamptz,
+  rpro_done text[] DEFAULT '{}',
+  created_at timestamptz DEFAULT now()
+);
+ALTER TABLE public.urgent_orders ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "anon_all_urgent" ON public.urgent_orders FOR ALL TO anon USING (true) WITH CHECK (true);</pre>
     <button class="btn btn-ghost btn-full btn-sm" onclick="copySql()" style="margin-top:6px">📋 Copy SQL</button>
   </div>
 
@@ -850,6 +959,10 @@ function subscribeRealtime() {
           const p = typeof row.payload === 'string' ? JSON.parse(row.payload) : row.payload;
           if (row.name === 'schedule' && p?.orders) {
             _db.orders = p.orders.filter(o => WIP_STATUSES.includes(o.status));
+            // allOrders: lấy trendOrders (mọi status) từ v20, fallback về orders nếu không có
+            _db.allOrders = (Array.isArray(p.trendOrders) && p.trendOrders.length)
+              ? p.trendOrders
+              : p.orders || [];
             updateDBStatusBar();
             // ── Auto-link Trend khi V19 update ──
             try{
@@ -903,6 +1016,10 @@ async function loadDB() {
       if (row.name === 'schedule' && row.payload?.orders) {
         // CHỈ lấy 3 WIP statuses như v19
         _db.orders = row.payload.orders.filter(o => WIP_STATUSES.includes(o.status));
+        // allOrders: lấy trendOrders (mọi status) từ v20, fallback về orders nếu không có
+        _db.allOrders = (Array.isArray(row.payload.trendOrders) && row.payload.trendOrders.length)
+          ? row.payload.trendOrders
+          : row.payload.orders || [];
         setDot('sched','ok');
         document.getElementById('db-lbl-sched').textContent = `Tracking: ${_db.orders.length} WIP`;
       }
@@ -997,7 +1114,9 @@ function parseQR(raw) {
 // FIND ORDERS — tìm đơn theo RPRO hoặc Mold
 // ══════════════════════════════════════════════════════════
 function findOrderByRpro(rpro) {
-  return _db.orders.find(o => (o.rpro||'').toUpperCase() === rpro.toUpperCase());
+  // Tìm trong allOrders (mọi status) trước, fallback về orders (WIP)
+  const src = (_db.allOrders && _db.allOrders.length) ? _db.allOrders : _db.orders;
+  return src.find(o => (o.rpro||'').toUpperCase() === rpro.toUpperCase());
 }
 function findOrdersByMold(mold) {
   const mc = extractMoldCode(mold);
@@ -1953,29 +2072,98 @@ function onLookup(val) {
   const res = document.getElementById('lu-result');
   if (!val || val.length < 4) { res.classList.remove('show'); return; }
   const q = val.toUpperCase();
-  // Search by RPRO or mold in WIP orders
-  const found = _db.orders.filter(o =>
+  // Search ALL orders (mọi status) — dùng allOrders thay vì orders (chỉ WIP)
+  const sourceOrders = (_db.allOrders && _db.allOrders.length) ? _db.allOrders : _db.orders;
+  const found = sourceOrders.filter(o =>
     (o.rpro||'').toUpperCase().includes(q) ||
     extractMoldCode(o.mold_type||'').includes(q)
-  ).slice(0,8);
+  );
 
-  let html = '';
+  // Lưu kết quả vào biến toàn cục để nút "Xem thêm" dùng lại
+  window._luFound = found;
+  window._luShown = 0;
 
-  if (found.length) {
-    html += found.map(o => {
-      const sizeCount = Object.keys(o.sizes||{}).length;
-      const totalQty = Object.values(o.sizes||{}).reduce((a,b)=>a+b,0);
+  function _renderLuChips(list) {
+    return list.map(o => {
       const redBadge = o.should_reduce ? `<span style="color:var(--orange);font-size:10px">⬇-1.5</span>` : '';
-      return `<div class="lu-order-chip" onclick="fillScanFromOrder('${o.rpro}')">
-        <div>
+      const isWip = WIP_STATUSES.includes(o.status);
+      const statusLabel = o.status || 'Không rõ';
+      const statusBadge = isWip
+        ? `<span style="font-size:10px;color:var(--text3)">${statusLabel}</span>`
+        : `<span style="font-size:10px;font-weight:700;color:#ff4d4d;background:rgba(255,77,77,.13);border:1px solid rgba(255,77,77,.4);border-radius:4px;padding:1px 6px">⚠ ${statusLabel}</span>`;
+      const chipStyle = isWip ? '' : ' style="border-color:rgba(255,77,77,.35);background:rgba(255,77,77,.04)"';
+      const infoLine = `${o.mold_type||'?'} · ${o.brand||o.customer||''}`;
+
+      // Size chips nếu đơn có trong allOrders (o.sizes tồn tại và có data)
+      const sizes = o.sizes || {};
+      const sizeEntries = Object.entries(sizes).filter(([,v]) => v > 0);
+      let sizeBlock = '';
+      if (sizeEntries.length) {
+        const chips = sizeEntries.map(([sz, qty]) =>
+          `<span style="display:inline-block;font-family:var(--mono);font-size:10px;font-weight:700;padding:2px 7px;background:var(--bg4);border:1px solid var(--border2);border-radius:4px;color:var(--accent);margin:2px 2px 0 0">${sz}<span style="color:var(--text3);font-weight:400">×${qty}</span></span>`
+        ).join('');
+        const totalQty = sizeEntries.reduce((a,[,v])=>a+v,0);
+        sizeBlock = `<div style="margin-top:4px;line-height:1.2">${chips}</div>
+          <div class="lu-info" style="margin-top:3px">${sizeEntries.length} size · ${totalQty} đôi · ${o.finish_date_ppc||'?'}</div>`;
+      } else {
+        // Đơn không có trong allOrders hoặc chưa có sizes — hiện bình thường
+        sizeBlock = `<div class="lu-info" style="margin-top:2px;color:var(--text3);font-style:italic">Chưa có dữ liệu size</div>`;
+      }
+
+      return `<div class="lu-order-chip"${chipStyle} onclick="fillScanFromOrder('${o.rpro}')">
+        <div style="min-width:0;flex:1">
           <div class="lu-rpro">${o.rpro} ${redBadge}</div>
-          <div class="lu-info">${o.mold_type||'?'} · ${o.customer||''}</div>
-          <div class="lu-info">${sizeCount} size · ${totalQty} đôi · ${o.finish_date_ppc||'?'}</div>
+          <div class="lu-info">${infoLine}</div>
+          ${sizeBlock}
+          <div style="margin-top:3px">${statusBadge}</div>
         </div>
-        <span style="color:var(--accent);font-size:18px">→</span>
+        <span style="color:var(--accent);font-size:18px;flex-shrink:0">→</span>
       </div>`;
     }).join('');
   }
+  window._renderLuChips = _renderLuChips;
+
+  const BATCH = 50;
+  let html = '';
+
+  if (found.length) {
+    const first = found.slice(0, BATCH);
+    window._luShown = first.length;
+    html += _renderLuChips(first);
+    if (found.length > BATCH) {
+      html += `<div style="text-align:center;margin-top:6px">
+        <button onclick="luLoadMore()" style="background:var(--bg3);border:1px solid var(--border2);color:var(--accent);font-size:12px;font-weight:700;padding:7px 18px;border-radius:20px;cursor:pointer;font-family:var(--mono)">
+          Xem thêm (${found.length - BATCH} đơn còn lại)
+        </button>
+      </div>`;
+    }
+  }
+
+  // ── Nút Xem thêm ──────────────────────────────────────────
+  window.luLoadMore = function() {
+    const BATCH = 50;
+    const found = window._luFound || [];
+    const shown = window._luShown || 0;
+    const next = found.slice(shown, shown + BATCH);
+    if (!next.length) return;
+    window._luShown = shown + next.length;
+    const res = document.getElementById('lu-result');
+    // Xóa nút cũ
+    const oldBtn = res.querySelector('div[style*="text-align:center"]');
+    if (oldBtn) oldBtn.remove();
+    // Thêm chip mới
+    const tmp = document.createElement('div');
+    tmp.innerHTML = (window._renderLuChips || (()=>''))(next);
+    while (tmp.firstChild) res.appendChild(tmp.firstChild);
+    // Thêm nút mới nếu còn đơn
+    const remaining = found.length - window._luShown;
+    if (remaining > 0) {
+      const btn = document.createElement('div');
+      btn.style.cssText = 'text-align:center;margin-top:6px';
+      btn.innerHTML = `<button onclick="luLoadMore()" style="background:var(--bg3);border:1px solid var(--border2);color:var(--accent);font-size:12px;font-weight:700;padding:7px 18px;border-radius:20px;cursor:pointer;font-family:var(--mono)">Xem thêm (${remaining} đơn còn lại)</button>`;
+      res.appendChild(btn);
+    }
+  };
 
   // Also search scan_records history
   if (_sb) {
@@ -2110,6 +2298,23 @@ function fillScanFromOrder(rpro) {
   // Build fake QR
   const order = findOrderByRpro(rpro);
   if (!order) { toast('Không tìm thấy đơn','err'); return; }
+
+  // ── Cảnh báo nếu đơn không phải WIP 3/4/5 ──────────────
+  const isWip = WIP_STATUSES.includes(order.status);
+  if (!isWip) {
+    const st = order.status || 'Không rõ';
+    toast(`⚠ ${rpro} — Status: ${st}`, 'err');
+    // Hiện banner cảnh báo đỏ dưới ô tìm kiếm
+    const banner = document.getElementById('lu-status-warn');
+    if (banner) {
+      banner.textContent = `⚠ Đơn này đang ở trạng thái: ${st} — không phải WIP. Vẫn có thể gửi yêu cầu gấp.`;
+      banner.style.display = '';
+    }
+  } else {
+    const banner = document.getElementById('lu-status-warn');
+    if (banner) banner.style.display = 'none';
+  }
+
   const fakeParsed = {
     type: 'single',
     rproList: [rpro],
@@ -2122,7 +2327,7 @@ function fillScanFromOrder(rpro) {
   _doneMap = {}; _orderMap = {}; _grpMap = {};
   document.getElementById('scan-clear').style.display = '';
   renderParsed(fakeParsed);
-  toast('Đơn: ' + rpro, 'info');
+  if (isWip) toast('Đơn: ' + rpro, 'info');
 }
 
 // ══════════════════════════════════════════════════════════
@@ -2176,10 +2381,25 @@ function saveWorker() {
   toast('✅ Mã NV: ' + v,'ok');
 }
 function updateWorkerUI() {
-  const shiftTxt = _shift ? ' · Ca '+_shift : '';
-  document.getElementById('worker-lbl').textContent = _worker ? ('NV-'+_worker+shiftTxt) : 'Chưa đặt mã';
-  const swi = document.getElementById('setup-worker');
-  if (swi) swi.value = _worker;
+  try {
+    const shiftTxt = _shift ? ' · Ca '+_shift : '';
+    const lbl = document.getElementById('worker-lbl');
+    if (!lbl) return;
+    if (_worker) {
+      const known = (typeof URGENT_WHITELIST !== 'undefined')
+        ? URGENT_WHITELIST.find(u => u.id === String(_worker).trim())
+        : null;
+      if (known) {
+        lbl.innerHTML = `NV-${_worker} · <span style="color:var(--green);font-weight:800">${known.name}</span> <span style="color:var(--green);font-size:10px">${known.title}</span>${shiftTxt ? ' <span style="color:var(--text3)">· Ca '+_shift+'</span>' : ''}`;
+      } else {
+        lbl.textContent = 'NV-' + _worker + shiftTxt;
+      }
+    } else {
+      lbl.textContent = 'Chưa đặt mã';
+    }
+    const swi = document.getElementById('setup-worker');
+    if (swi) swi.value = _worker;
+  } catch(e) { console.warn('updateWorkerUI err:', e); }
 }
 
 // ── Cài đặt có mật khẩu ──────────────────────────────────
@@ -2247,6 +2467,8 @@ function clearHistory() {
 // ── Init ─────────────────────────────────────────────────
 updateWorkerUI();
 if (!_worker) { setTimeout(openWorkerModal, 600); }
+// Gọi lại sau khi URGENT_WHITELIST đã load (nằm cuối file)
+setTimeout(updateWorkerUI, 0);
 
 // ══════════════════════════════════════════════════════════
 // CAMERA QR SCAN
@@ -2668,11 +2890,15 @@ function renderTrend(orders) {
   };
 
   // Summary
+  // ── Lấy danh sách mã khuôn unique từ orders (không đụng logic cũ) ──
+  const _moldSet = [...new Set(orders.map(o => o.mold_type).filter(Boolean))];
+  const _moldDisplay = _moldSet.length ? _moldSet.join(', ') : '—';
   const el=document.getElementById('trend-result');
   el.innerHTML=`<div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
     <div class="mf"><div class="mf-l">Tổng đơn</div><div class="mf-v c-acc">${orders.length}</div></div>
     <div class="mf"><div class="mf-l">Tổng qty</div><div class="mf-v c-grn">${totalQty}</div></div>
     <div class="mf"><div class="mf-l">Số size/nhóm</div><div class="mf-v">${sorted.length}</div></div>
+    <div class="mf" style="flex:1 1 100%"><div class="mf-l">Mã khuôn</div><div class="mf-v c-warn" style="font-size:12px;word-break:break-all">${_moldDisplay}</div></div>
   </div>
   <div class="sz-head" style="margin-bottom:8px">PHÂN BỔ SIZE (% tổng)</div>
   ${sorted.map(([sz,qty])=>{
@@ -2923,81 +3149,416 @@ async function loadTrendLive(){
 // ══════════════════════════════════════════════════════════
 // REQUEST MOLD — yêu cầu thêm khuôn size để out WIP
 // ══════════════════════════════════════════════════════════
-let _reqRaw=[], _reqFilter='all';
-async function submitRequest() {
-  const mold=(document.getElementById('req-mold-inp').value||'').trim().toUpperCase();
-  const size=(document.getElementById('req-size-inp').value||'').trim();
-  const note=(document.getElementById('req-note-inp').value||'').trim();
-  if(!mold){toast('Nhập mã khuôn','err');return;}
-  if(!size){toast('Nhập size cần khuôn','err');return;}
-  if(!_worker){toast('Nhập mã NV trước','err');openWorkerModal();return;}
-  if(!_sb){toast('Chưa kết nối','err');return;}
-  try {
-    const{error}=await _sb.from('mold_requests').insert({
-      mold_code:mold, size_label:size, note:note||null,
-      worker_name:_worker, status:'pending'
-    });
-    if(error) throw error;
-    toast(`✅ Đã gửi yêu cầu khuôn ${mold} size ${size}`,'ok');
-    document.getElementById('req-mold-inp').value='';
-    document.getElementById('req-size-inp').value='';
-    document.getElementById('req-note-inp').value='';
-    loadRequests();
-  } catch(e){
-    toast('❌ '+e.message,'err');
+// ══════════════════════════════════════════════════════════
+// URGENT ORDERS — Đơn Gấp & Đơn Bù Gấp
+// ══════════════════════════════════════════════════════════
+const URGENT_WHITELIST = [
+  { id:'00083', name:'Đoàn Thị Thùy Dung',   title:'Act Group Leader' },
+  { id:'01034', name:'Nguyễn Thị Kim Anh',   title:'Team Leader' },
+  { id:'01796', name:'Trần Viết Thoại',       title:'Team Leader' },
+  { id:'02284', name:'Nguyễn Thị Thùy Kiều', title:'Team Leader' },
+  { id:'03156', name:'Lưu Anh Đức',           title:'Team Leader' },
+  { id:'03566', name:'Lê Xuân Thắng',         title:'Team Leader' },
+  { id:'03735', name:'Huỳnh Trung Trinh',     title:'Team Leader' },
+  { id:'04396', name:'Dương Minh Triều',      title:'Team Leader' },
+  { id:'04929', name:'Lê Thành Lợi',         title:'Group Leader' },
+  { id:'03892', name:'Nguyễn Thị Xuân',      title:'Supervisor' },
+];
+function urgGetUser(workerId) {
+  return URGENT_WHITELIST.find(u => u.id === String(workerId).trim()) || null;
+}
+function canDeleteUrgent() {
+  return DELETE_WHITELIST.includes(String(_worker).trim());
+}
+const DELETE_WHITELIST = ['00083','04929','03892'];
+
+
+// State
+let _urgRaw = [], _urgFilter = 'all';
+let _urgSelOrders = []; // [{rpro, mold_type, brand, status}]
+let _urgType = ''; // 'gap' | 'bu'
+let _urgPrio = 0;  // 50 | 100
+
+// ── Khởi tạo UI khi vào tab ──
+function initUrgentPanel() {
+  const user = urgGetUser(_worker);
+  const infoEl  = document.getElementById('urg-user-info');
+  const noAccEl = document.getElementById('urg-no-access');
+  const formEl  = document.getElementById('urg-submit-btn');
+  if (user) {
+    infoEl.style.display = 'block';
+    noAccEl.style.display = 'none';
+    document.getElementById('urg-user-display').textContent =
+      `NV-${user.id} · ${user.name}`;
+    document.getElementById('urg-user-title').textContent = user.title;
+    if (formEl) formEl.disabled = false;
+  } else {
+    infoEl.style.display = 'none';
+    noAccEl.style.display = _worker ? 'block' : 'none';
+    if (formEl) formEl.disabled = true;
   }
 }
-async function loadRequests(){
-  const el=document.getElementById('req-list');
-  el.innerHTML='<div class="empty"><div class="spinner"></div></div>';
-  if(!_sb){el.innerHTML='<div class="empty" style="color:var(--red)">Chưa kết nối</div>';return;}
-  try{
-    const{data,error}=await _sb.from('mold_requests').select('*').order('created_at',{ascending:false}).limit(100);
-    if(error) throw error;
-    _reqRaw=data||[];
-    filterReqs(_reqFilter);
-  }catch(e){el.innerHTML=`<div class="empty" style="color:var(--red)">Lỗi: ${e.message}</div>`;}
+
+// ── Search đơn (all status) ──
+function onUrgSearch(val) {
+  const drop = document.getElementById('urg-search-drop');
+  const raw = (val || '').trim();
+
+  // Detect paste nhiều RPRO (space-separated RPRO-xxx)
+  const pasteTokens = raw.split(/[\s,\n]+/).filter(t => /^RPRO-/i.test(t));
+  if (pasteTokens.length > 1) {
+    pasteTokens.forEach(t => {
+      const found = (_db.allOrders || []).find(o =>
+        (o.rpro||'').toUpperCase() === t.toUpperCase());
+      if (found) urgAddOrder(found);
+    });
+    document.getElementById('urg-search-inp').value = '';
+    drop.style.display = 'none';
+    return;
+  }
+
+  if (raw.length < 2) { drop.style.display = 'none'; return; }
+  const q = raw.toUpperCase();
+  const results = (_db.allOrders || []).filter(o => {
+    const blob = ((o.rpro||'')+' '+(o.brand||'')+' '+(o.mold_type||'')+' '+(o.customer||'')).toUpperCase();
+    return blob.includes(q);
+  }).slice(0, 30);
+
+  if (!results.length) {
+    // Không tìm thấy trong allOrders — cho phép thêm thủ công nếu trông giống RPRO code
+    const looksLikeRpro = /^RPRO[-\s]?\d/i.test(raw) || raw.length >= 5;
+    if (looksLikeRpro) {
+      const escaped = raw.replace(/'/g,"\\'");
+      drop.innerHTML = `
+        <div class="urg-drop-item" style="border:1px dashed rgba(255,204,0,.35);background:rgba(255,204,0,.06)" onclick="urgAddManual('${escaped}')">
+          <div class="urg-drop-rpro" style="color:var(--warn)">➕ Thêm thủ công: <span style="color:var(--text)">${raw}</span></div>
+          <div class="urg-drop-meta" style="color:var(--text3)">⚠️ Không tìm thấy trong hệ thống — vẫn cho phép thêm</div>
+        </div>`;
+      drop.style.display = 'block';
+    } else {
+      drop.style.display = 'none';
+    }
+    return;
+  }
+  drop.innerHTML = results.map(o => `
+    <div class="urg-drop-item" onclick="urgAddOrderById('${(o.rpro||'').replace(/'/g,"\\'")}')">
+      <div class="urg-drop-rpro">${o.rpro||'?'}</div>
+      <div class="urg-drop-meta">${o.brand||''} · ${o.mold_type||'—'} · <span style="color:var(--text2)">${o.status||''}</span></div>
+    </div>`).join('');
+  drop.style.display = 'block';
 }
-function filterReqs(f){
-  _reqFilter=f;
-  const el=document.getElementById('req-list');
-  const data=f==='all'?_reqRaw:_reqRaw.filter(r=>r.status===f);
-  if(!data.length){el.innerHTML='<div class="empty"><div class="empty-icon">📦</div>Không có yêu cầu</div>';return;}
-  el.innerHTML=data.map(r=>{
-    const mine=r.worker_name===_worker;
-    return `<div class="req-item${mine?' hi-mine':''}">
-      <div class="req-top">
-        <div>
-          <div class="req-mold">${r.mold_code||'?'} · size ${r.size_label||'?'}</div>
-          <div class="req-meta">NV-${r.worker_name||'?'}${r.shift_name?' Ca '+r.shift_name:''} · ${timeAgo(r.created_at)}${r.note?` · ${r.note}`:''}</div>
-        </div>
-        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">
-          <span class="req-status ${r.status==='done'?'done':'pending'}">${r.status==='done'?'✅ Xong':'⏳ Chờ'}</span>
-          ${r.status==='pending'&&mine?`<button class="btn btn-ghost btn-sm" style="font-size:9px;padding:2px 8px" onclick="resolveRequest(${r.id})">✓ Done</button>`:''}
-          ${mine?`<button class="btn btn-ghost btn-sm" style="font-size:9px;padding:2px 8px;color:var(--red);border-color:rgba(255,61,90,.3)" onclick="deleteRequest(${r.id})">🗑 Xóa</button>`:''}
-        </div>
-      </div>
-    </div>`;
+
+function urgAddOrderById(rpro) {
+  const o = (_db.allOrders || []).find(o => (o.rpro||'').toUpperCase() === rpro.toUpperCase());
+  if (o) urgAddOrder(o);
+  document.getElementById('urg-search-inp').value = '';
+  document.getElementById('urg-search-drop').style.display = 'none';
+}
+
+// Thêm đơn thủ công khi không tìm thấy trong allOrders
+function urgAddManual(rpro) {
+  const code = rpro.trim().toUpperCase();
+  if (!code) return;
+  if (_urgSelOrders.find(x => x.rpro.toUpperCase() === code)) {
+    toast('Đơn này đã được thêm', 'info');
+    document.getElementById('urg-search-inp').value = '';
+    document.getElementById('urg-search-drop').style.display = 'none';
+    return;
+  }
+  _urgSelOrders.push({ rpro: code, mold_type: '', brand: '', status: '(thủ công)', manual: true });
+  renderUrgSelected();
+  document.getElementById('urg-search-inp').value = '';
+  document.getElementById('urg-search-drop').style.display = 'none';
+  toast('➕ Đã thêm thủ công: ' + code, 'info');
+}
+
+function urgAddOrder(o) {
+  if (_urgSelOrders.find(x => x.rpro === o.rpro)) return; // đã có
+  _urgSelOrders.push({ rpro: o.rpro, mold_type: o.mold_type||'', brand: o.brand||'', status: o.status||'' });
+  renderUrgSelected();
+}
+
+function urgRemoveOrder(rpro) {
+  _urgSelOrders = _urgSelOrders.filter(x => x.rpro !== rpro);
+  renderUrgSelected();
+}
+
+function renderUrgSelected() {
+  const wrap = document.getElementById('urg-sel-wrap');
+  const moldPrev = document.getElementById('urg-mold-preview');
+  const moldChips = document.getElementById('urg-mold-chips');
+  wrap.innerHTML = _urgSelOrders.map(o =>
+    `<div class="urg-sel-chip" onclick="urgRemoveOrder('${o.rpro}')"
+      style="${o.manual ? 'border-color:var(--warn);color:var(--warn)' : ''}"
+      title="${o.manual ? '⚠️ Thêm thủ công — không có trong hệ thống' : 'Click để bỏ chọn'}">
+      ${o.manual ? '⚠️ ' : ''}${o.rpro}
+    </div>`
+  ).join('');
+  // Tự động hiện mã khuôn
+  const molds = [...new Set(_urgSelOrders.map(o => o.mold_type).filter(Boolean))];
+  if (molds.length) {
+    moldPrev.style.display = 'block';
+    moldChips.innerHTML = molds.map(m => `<span class="urg-mold-chip">${m}</span>`).join('');
+  } else {
+    moldPrev.style.display = 'none';
+  }
+}
+
+function selectUrgType(t) {
+  _urgType = t;
+  document.getElementById('type-btn-gap').className = 'type-sel-btn' + (t==='gap'?' sel-gap':'');
+  document.getElementById('type-btn-bu').className  = 'type-sel-btn' + (t==='bu'?' sel-bu':'');
+}
+
+function selectUrgPrio(p) {
+  _urgPrio = p;
+  document.getElementById('prio-btn-50').className  = 'prio-sel-btn' + (p===50?' sel50':'');
+  document.getElementById('prio-btn-100').className = 'prio-sel-btn' + (p===100?' sel100':'');
+  const fill = document.getElementById('urg-prio-fill');
+  const lbl  = document.getElementById('urg-prio-lbl');
+  if (p === 50) {
+    fill.style.width = '50%'; fill.style.background = 'var(--warn)';
+    lbl.textContent = '⚡ 50% — Ưu tiên cao'; lbl.style.color = 'var(--warn)';
+  } else {
+    fill.style.width = '100%'; fill.style.background = 'var(--red)';
+    lbl.textContent = '🔥 100% — Khẩn cấp'; lbl.style.color = 'var(--red)';
+  }
+}
+
+// ── Submit ──
+async function submitUrgent() {
+  const user = urgGetUser(_worker);
+  if (!user) { toast('🔒 Không có quyền tạo yêu cầu','err'); return; }
+  if (!_urgSelOrders.length) { toast('Chọn ít nhất 1 đơn hàng','err'); return; }
+  if (!_urgType) { toast('Chọn loại đơn','err'); return; }
+  if (!_urgPrio) { toast('Chọn mức độ ưu tiên','err'); return; }
+  if (!_sb) { toast('Chưa kết nối','err'); return; }
+
+  const rproCodes  = _urgSelOrders.map(o => o.rpro);
+  const moldCodes  = [...new Set(_urgSelOrders.map(o => o.mold_type).filter(Boolean))].join(', ');
+  const note       = (document.getElementById('urg-note-inp').value||'').trim();
+
+  const btn = document.getElementById('urg-submit-btn');
+  btn.disabled = true; btn.textContent = '⏳ Đang gửi...';
+  try {
+    const { error } = await _sb.from('urgent_orders').insert({
+      rpro_codes:  rproCodes,
+      mold_codes:  moldCodes,
+      order_type:  _urgType,
+      priority_pct: _urgPrio,
+      note:        note || null,
+      worker_id:   user.id,
+      worker_name: user.name,
+      worker_title: user.title,
+      status:      'Chờ xử lý',
+      rpro_done:   [],
+    });
+    if (error) throw error;
+    toast('✅ Đã gửi yêu cầu đơn gấp','ok');
+    // Reset form
+    _urgSelOrders = []; _urgType = ''; _urgPrio = 0;
+    renderUrgSelected();
+    document.getElementById('urg-note-inp').value = '';
+    selectUrgType(''); selectUrgPrio(0);
+    document.getElementById('urg-prio-fill').style.width='0%';
+    document.getElementById('urg-prio-lbl').textContent='Chưa chọn';
+    document.getElementById('urg-prio-lbl').style.color='var(--text3)';
+    document.getElementById('type-btn-gap').className='type-sel-btn';
+    document.getElementById('type-btn-bu').className='type-sel-btn';
+    loadUrgent();
+  } catch(e) {
+    toast('❌ '+e.message,'err');
+  } finally {
+    btn.disabled = false; btn.innerHTML = '🚨 GỬI YÊU CẦU ĐƠN GẤP';
+  }
+}
+
+// ── Load & filter ──
+async function loadUrgent() {
+  initUrgentPanel();
+  const el = document.getElementById('urg-list');
+  el.innerHTML = '<div class="empty"><div class="spinner"></div></div>';
+  if (!_sb) { el.innerHTML='<div class="empty" style="color:var(--red)">Chưa kết nối</div>'; return; }
+  try {
+    const { data, error } = await _sb.from('urgent_orders')
+      .select('*').order('created_at',{ascending:false}).limit(100);
+    if (error) throw error;
+    _urgRaw = data || [];
+    filterUrgent(_urgFilter);
+  } catch(e) {
+    el.innerHTML = `<div class="empty" style="color:var(--red)">Lỗi: ${e.message}</div>`;
+  }
+}
+
+function filterUrgent(f) {
+  _urgFilter = f;
+  const el = document.getElementById('urg-list');
+  const list = f === 'all' ? _urgRaw : _urgRaw.filter(r => r.status === f);
+  if (!list.length) {
+    el.innerHTML = '<div class="empty"><div class="empty-icon">🚨</div>Không có yêu cầu</div>';
+    return;
+  }
+  el.innerHTML = list.map(r => renderUrgCard(r)).join('');
+}
+
+function renderUrgCard(r) {
+  const typeLabel = r.order_type === 'gap' ? '🔴 Đơn hàng gấp' : '🟣 Đơn bù gấp';
+  const typeCls   = r.order_type === 'gap' ? 'urg-gap' : 'urg-bu';
+  const stMap = { 'Chờ xử lý':'urg-s-cho', 'Đã tiếp nhận':'urg-s-tiep', 'Done':'urg-s-done' };
+  const stCls = stMap[r.status] || 'urg-s-cho';
+  const cardCls = r.status==='Đã tiếp nhận'?'st-accepted':r.status==='Done'?'st-done':'';
+  const rproDone = r.rpro_done || [];
+  const rpros = r.rpro_codes || [];
+  const molds = (r.mold_codes||'').split(',').map(s=>s.trim()).filter(Boolean);
+  const canAct = !!urgGetUser(_worker);
+  const actUser = urgGetUser(_worker);
+
+  // ── Qty mỗi RPRO từ allOrders ──────────────────────────
+  const allOrds = (_db.allOrders && _db.allOrders.length) ? _db.allOrders : _db.orders;
+  let totalQty = 0;
+  const rproChips = rpros.map(rp => {
+    const ord = allOrds.find(o => (o.rpro||'').toUpperCase() === rp.toUpperCase());
+    const qty = ord ? Object.values(ord.sizes||{}).reduce((a,b)=>a+b,0) : null;
+    if (qty !== null) totalQty += qty;
+    const qtyBadge = qty !== null
+      ? `<span style="font-size:9px;color:var(--text3);margin-left:3px">${qty}đ</span>`
+      : '';
+    return `<span class="urg-rpro-chip${rproDone.includes(rp)?' done':''}">${rp}${qtyBadge}</span>`;
   }).join('');
+
+  const sumBadge = totalQty > 0
+    ? `<span style="font-size:10px;font-weight:700;color:var(--accent);font-family:var(--mono);margin-left:6px">Σ ${totalQty} đôi</span>`
+    : '';
+
+  const moldChips = molds.map(m =>
+    `<span class="urg-mold-chip">${m}</span>`
+  ).join('');
+
+  const prioFillCls = r.priority_pct >= 100 ? 'urg-prio-fill-100' : 'urg-prio-fill-50';
+  const prioLbl = r.priority_pct >= 100
+    ? `<span style="color:var(--red);font-family:var(--mono);font-size:10px">🔥 ${r.priority_pct}% — Khẩn cấp</span>`
+    : `<span style="color:var(--warn);font-family:var(--mono);font-size:10px">⚡ ${r.priority_pct}% — Ưu tiên cao</span>`;
+
+  const acceptBox = r.status !== 'Chờ xử lý'
+    ? `<div class="urg-who-box">
+        🤝 Tiếp nhận bởi <span class="urg-who-name">NV-${r.accepted_id||'?'} · ${r.accepted_name||'?'}</span>
+        · <span style="color:var(--text3);font-size:10px">${r.accepted_title||''}</span>
+        · ${r.accepted_at ? timeAgo(r.accepted_at) : ''}
+       </div>` : '';
+
+  // ── Nút xóa — chỉ 3 ID đặc biệt ──
+  const delBtn = canDeleteUrgent()
+    ? `<button class="btn btn-ghost btn-sm" style="color:var(--red);border-color:rgba(255,77,77,.4);font-size:11px;margin-left:auto" onclick="deleteUrgent(${r.id})">🗑 Xóa</button>`
+    : '';
+
+  // Buttons
+  let btns = '';
+  if (canAct) {
+    if (r.status === 'Chờ xử lý') {
+      btns += `<button class="btn btn-blue btn-sm" onclick="acceptUrgent(${r.id})">🤝 Tiếp nhận</button>`;
+    }
+    if (r.status === 'Đã tiếp nhận') {
+      const perRpro = rpros.filter(rp => !rproDone.includes(rp)).map(rp =>
+        `<button class="btn btn-ghost btn-sm" style="font-size:10px" onclick="doneUrgentRpro(${r.id},'${rp}')">✓ ${rp.replace('RPRO-','')}</button>`
+      ).join('');
+      if (perRpro) btns += perRpro;
+      btns += `<button class="btn btn-green btn-sm" onclick="doneUrgentAll(${r.id})">✅ Done tất cả</button>`;
+    }
+  }
+  if (delBtn) btns += delBtn;
+
+  return `<div class="urg-card ${cardCls}">
+    <div class="urg-top">
+      <span class="urg-type-badge ${typeCls}">${typeLabel}</span>
+      <span class="urg-status-pill ${stCls}">${r.status}</span>
+    </div>
+
+    <div class="urg-section-lbl">Đơn hàng (${rpros.length}) ${sumBadge}</div>
+    <div class="urg-rpro-wrap">${rproChips}</div>
+
+    <div class="urg-section-lbl">Mã khuôn</div>
+    <div class="urg-rpro-wrap">${moldChips || '<span style="color:var(--text3);font-size:11px">—</span>'}</div>
+
+    <div class="urg-prio-bar"><div class="${prioFillCls}"></div></div>
+    <div style="margin-bottom:6px">${prioLbl}</div>
+
+    ${r.note ? `<div style="font-size:11px;color:var(--text2);margin-bottom:6px;padding:6px 10px;background:var(--bg3);border-radius:6px">📝 ${r.note}</div>` : ''}
+
+    <div class="urg-who-box">
+      📤 Tạo bởi <span class="urg-who-name">NV-${r.worker_id||'?'} · ${r.worker_name||'?'}</span>
+      · <span style="color:var(--text3);font-size:10px">${r.worker_title||''}</span>
+      · ${r.created_at ? timeAgo(r.created_at) : ''}
+    </div>
+    ${acceptBox}
+
+    ${btns ? `<div class="urg-actions" style="flex-wrap:wrap;gap:6px">${btns}</div>` : ''}
+  </div>`;
 }
-async function resolveRequest(id){
-  if(!_sb) return;
-  try{
-    const{error}=await _sb.from('mold_requests').update({status:'done',resolved_at:new Date().toISOString()}).eq('id',id);
-    if(error) throw error;
-    toast('✅ Đã cập nhật xong','ok');
-    loadRequests();
-  }catch(e){toast('❌ '+e.message,'err');}
+
+// ── Actions ──
+async function acceptUrgent(id) {
+  const user = urgGetUser(_worker);
+  if (!user) { toast('🔒 Không có quyền','err'); return; }
+  if (!_sb) return;
+  try {
+    const { error } = await _sb.from('urgent_orders').update({
+      status: 'Đã tiếp nhận',
+      accepted_id:    user.id,
+      accepted_name:  user.name,
+      accepted_title: user.title,
+      accepted_at:    new Date().toISOString(),
+    }).eq('id', id);
+    if (error) throw error;
+    toast('🤝 Đã tiếp nhận','ok');
+    loadUrgent();
+  } catch(e) { toast('❌ '+e.message,'err'); }
 }
-async function deleteRequest(id){
-  if(!_sb) return;
-  if(!confirm('Xóa yêu cầu này?')) return;
-  try{
-    const{error}=await _sb.from('mold_requests').delete().eq('id',id);
-    if(error) throw error;
-    toast('🗑 Đã xóa','ok');
-    loadRequests();
-  }catch(e){toast('❌ '+e.message,'err');}
+
+async function doneUrgentRpro(id, rpro) {
+  const user = urgGetUser(_worker);
+  if (!user) { toast('🔒 Không có quyền','err'); return; }
+  if (!_sb) return;
+  try {
+    // Lấy rpro_done hiện tại
+    const { data } = await _sb.from('urgent_orders').select('rpro_done,rpro_codes').eq('id',id).single();
+    const done = [...new Set([...(data?.rpro_done||[]), rpro])];
+    const allDone = (data?.rpro_codes||[]).every(r => done.includes(r));
+    const { error } = await _sb.from('urgent_orders').update({
+      rpro_done: done,
+      ...(allDone ? { status: 'Done' } : {}),
+    }).eq('id', id);
+    if (error) throw error;
+    toast(allDone ? '✅ Tất cả đơn đã Done' : `✓ Done ${rpro}`,'ok');
+    loadUrgent();
+  } catch(e) { toast('❌ '+e.message,'err'); }
+}
+
+async function deleteUrgent(id) {
+  if (!canDeleteUrgent()) { toast('🔒 Không có quyền xóa','err'); return; }
+  if (!confirm('Xóa lệnh này? Không thể khôi phục.')) return;
+  if (!_sb) return;
+  try {
+    const { error } = await _sb.from('urgent_orders').delete().eq('id', id);
+    if (error) throw error;
+    toast('🗑 Đã xóa lệnh','ok');
+    loadUrgent();
+  } catch(e) { toast('❌ '+e.message,'err'); }
+}
+
+async function doneUrgentAll(id) {
+  const user = urgGetUser(_worker);
+  if (!user) { toast('🔒 Không có quyền','err'); return; }
+  if (!_sb) return;
+  try {
+    const { data } = await _sb.from('urgent_orders').select('rpro_codes').eq('id',id).single();
+    const { error } = await _sb.from('urgent_orders').update({
+      status:    'Done',
+      rpro_done: data?.rpro_codes || [],
+    }).eq('id', id);
+    if (error) throw error;
+    toast('✅ Done tất cả đơn','ok');
+    loadUrgent();
+  } catch(e) { toast('❌ '+e.message,'err'); }
 }
 
 // ══════════════════════════════════════════════════════════
