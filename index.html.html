@@ -438,7 +438,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--s
   <button class="nav-btn" onclick="setTab('wip',this);loadWIP()">
     <span class="nb-icon">🏭</span>WIP Live
   </button>
-  <button class="nav-btn" onclick="setTab('trend',this)">
+  <button class="nav-btn" onclick="setTab('trend',this);renderMoldSummaryTable()">
     <span class="nb-icon">📊</span>Trend
   </button>
   <button class="nav-btn" onclick="setTab('gender',this);renderGenderDash()">
@@ -704,6 +704,67 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--s
     <div class="card-head" id="trend-section-title">PHÂN BỔ SIZE THEO SECTION</div>
     <div id="trend-section-body"></div>
   </div>
+
+  <!-- ═══ MOLD SUMMARY TABLE ═══ -->
+  <div class="card" id="mold-summary-card">
+    <div class="card-head" style="flex-wrap:wrap;gap:6px">
+      <span style="display:flex;align-items:center;gap:6px">
+        📦 QTY MOLD LIVE · WIP THEO SECTION
+        <span style="font-size:9px;color:var(--green);background:var(--green-dim);border:1px solid rgba(0,232,122,.25);border-radius:10px;padding:1px 7px;font-family:var(--mono)">AUTO</span>
+      </span>
+      <span style="flex:1"></span>
+      <button onclick="renderMoldSummaryTable()" style="background:none;border:none;color:var(--text3);font-size:13px;cursor:pointer;padding:2px 6px">🔄</button>
+    </div>
+    <!-- section filter -->
+    <div id="mst-filter-row" style="display:flex;gap:5px;margin-bottom:10px;flex-wrap:wrap">
+      <button class="mst-sec-btn active" data-sec="ALL" onclick="mstToggleSec(this)"
+        style="font-family:var(--mono);font-size:10px;font-weight:700;padding:4px 10px;border-radius:20px;border:1px solid var(--border2);background:var(--bg3);color:var(--text2);cursor:pointer;white-space:nowrap">
+        Tất cả
+      </button>
+      <button class="mst-sec-btn" data-sec="5.WIP IN MOLDING" onclick="mstToggleSec(this)"
+        style="font-family:var(--mono);font-size:10px;font-weight:700;padding:4px 10px;border-radius:20px;border:1px solid var(--border2);background:var(--bg3);color:var(--text2);cursor:pointer;white-space:nowrap">
+        🔵 MOLDING
+      </button>
+      <button class="mst-sec-btn" data-sec="4.WIP SAU PREFITTING" onclick="mstToggleSec(this)"
+        style="font-family:var(--mono);font-size:10px;font-weight:700;padding:4px 10px;border-radius:20px;border:1px solid var(--border2);background:var(--bg3);color:var(--text2);cursor:pointer;white-space:nowrap">
+        🟠 SAU PRE
+      </button>
+      <button class="mst-sec-btn" data-sec="3.WIP SAU LAMINATION" onclick="mstToggleSec(this)"
+        style="font-family:var(--mono);font-size:10px;font-weight:700;padding:4px 10px;border-radius:20px;border:1px solid var(--border2);background:var(--bg3);color:var(--text2);cursor:pointer;white-space:nowrap">
+        🟡 SAU LAM
+      </button>
+      <button class="mst-sec-btn" data-sec="2.MATERIAL CHƯA DÁN" onclick="mstToggleSec(this)"
+        style="font-family:var(--mono);font-size:10px;font-weight:700;padding:4px 10px;border-radius:20px;border:1px solid var(--border2);background:var(--bg3);color:var(--text2);cursor:pointer;white-space:nowrap">
+        🩷 MAT CHƯA DÁN
+      </button>
+      <button class="mst-sec-btn" data-sec="1.CHƯA LOAD MATERIAL" onclick="mstToggleSec(this)"
+        style="font-family:var(--mono);font-size:10px;font-weight:700;padding:4px 10px;border-radius:20px;border:1px solid var(--border2);background:var(--bg3);color:var(--text2);cursor:pointer;white-space:nowrap">
+        🟢 CHỜ LOAD
+      </button>
+    </div>
+    <!-- MOLD SEARCH FILTER -->
+    <div style="position:relative;margin-bottom:8px">
+      <input id="mst-search-inp"
+        placeholder="🔍 Tìm mã khuôn... (VD: OV-0256)"
+        autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false"
+        oninput="mstFilterMold(this.value)"
+        style="width:100%;padding:9px 34px 9px 12px;background:#030918;
+               border:1.5px solid rgba(0,207,255,.2);border-radius:8px;
+               color:var(--accent);font-size:13px;font-family:var(--mono);
+               outline:none;transition:border-color .15s;letter-spacing:.3px">
+      <button onclick="document.getElementById('mst-search-inp').value='';mstFilterMold('')"
+        style="position:absolute;right:8px;top:50%;transform:translateY(-50%);
+               background:none;border:none;color:rgba(0,207,255,.4);
+               font-size:16px;cursor:pointer;padding:4px;line-height:1;display:none"
+        id="mst-search-clear">✕</button>
+    </div>
+    <div id="mold-summary-body">
+      <div class="empty" style="padding:20px 0">
+        <div class="empty-icon">📦</div>
+        <div style="font-size:11px">Đang chờ dữ liệu…</div>
+      </div>
+    </div>
+  </div>
 </div>
 
 <style>
@@ -716,6 +777,114 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--s
 .trend-live-bar{flex:1;height:14px;background:rgba(255,255,255,.05);border-radius:3px;overflow:hidden;position:relative}
 .trend-live-bar-in{height:100%;border-radius:3px;transition:width .4s}
 .trend-live-qty{font-family:var(--mono);font-size:10px;font-weight:700;min-width:90px;text-align:right;color:var(--text2)}
+
+/* ══ MOLD SUMMARY TABLE ══ */
+.mst-outer{position:relative}
+.mst-scroll-hint{
+  position:absolute;right:0;top:0;bottom:0;width:28px;
+  background:linear-gradient(to right,transparent,rgba(2,6,20,.9));
+  pointer-events:none;z-index:4;border-radius:0 8px 8px 0;
+  display:flex;align-items:center;justify-content:flex-end;padding-right:4px;
+}
+.mst-scroll-hint span{font-size:10px;color:var(--text3);animation:mst-blink 1.6s ease-in-out infinite}
+@keyframes mst-blink{0%,100%{opacity:.3}50%{opacity:1}}
+.mst-wrap{
+  overflow-x:auto;-webkit-overflow-scrolling:touch;
+  margin:0;padding:0 0 4px;
+  scrollbar-width:thin;scrollbar-color:rgba(0,207,255,.25) transparent;
+  border-radius:10px;
+}
+.mst-wrap::-webkit-scrollbar{height:3px}
+.mst-wrap::-webkit-scrollbar-thumb{background:rgba(0,207,255,.3);border-radius:2px}
+.mst-table{
+  border-collapse:separate;border-spacing:0 2px;
+  font-family:var(--mono);font-size:11px;white-space:nowrap;
+  background:#020614;
+}
+.mst-table thead th{
+  background:#050d1e;
+  border-top:1px solid rgba(0,207,255,.12);
+  border-bottom:1px solid rgba(0,207,255,.25);
+  padding:8px 10px;font-size:9px;font-weight:700;letter-spacing:1px;
+  text-transform:uppercase;color:rgba(0,207,255,.55);text-align:center;
+  white-space:nowrap;
+}
+.mst-table thead th:first-child{
+  text-align:left;position:sticky;left:0;z-index:3;
+  background:#050d1e;
+  box-shadow:4px 0 14px rgba(0,0,0,.9);
+  color:rgba(0,207,255,.55);
+  min-width:80px;
+}
+.mst-table tbody tr{
+  transition:background .12s;
+}
+.mst-table tbody tr:nth-child(odd) td{
+  background:#030918;
+}
+.mst-table tbody tr:nth-child(even) td{
+  background:#020614;
+}
+.mst-table tbody tr:active td,
+.mst-table tbody tr:hover td{
+  background:rgba(0,207,255,.06)!important;
+}
+.mst-table tbody td{
+  padding:7px 10px;
+  border-bottom:1px solid rgba(0,207,255,.04);
+  text-align:right;color:rgba(180,210,240,.85);vertical-align:middle;
+}
+.mst-table tbody td:first-child{
+  text-align:left;position:sticky;left:0;
+  font-weight:800;
+  color:var(--accent);z-index:1;
+  box-shadow:4px 0 12px rgba(0,0,0,.7);
+  max-width:90px;overflow:hidden;text-overflow:ellipsis;
+  letter-spacing:.3px;
+}
+.mst-table tbody tr:nth-child(odd) td:first-child{background:#030918}
+.mst-table tbody tr:nth-child(even) td:first-child{background:#020614}
+.mst-table tbody tr:hover td:first-child{background:rgba(0,207,255,.06)!important}
+.mst-table tfoot td{
+  background:#050d1e;
+  border-top:1px solid rgba(0,207,255,.25);
+  padding:8px 10px;font-weight:800;text-align:right;
+  color:rgba(0,207,255,.8);
+  letter-spacing:.3px;
+}
+.mst-table tfoot td:first-child{
+  text-align:left;position:sticky;left:0;
+  background:#050d1e;z-index:1;
+  box-shadow:4px 0 12px rgba(0,0,0,.7);
+  color:rgba(0,207,255,.6);
+}
+.mst-cell-live{color:#00e87a;font-weight:800;text-shadow:0 0 8px rgba(0,232,122,.4)}
+.mst-cell-zero{color:rgba(255,255,255,.15);font-size:10px}
+.mst-col-ovn{background:rgba(176,108,255,.05)!important}
+.mst-col-live{background:rgba(0,232,122,.04)!important}
+.mst-col-remain{background:rgba(0,207,255,.04)!important}
+.mst-col-sum{background:rgba(176,108,255,.07)!important}
+.mst-sec-btn.active[data-sec="ALL"]{background:var(--accent-dim)!important;border-color:var(--accent)!important;color:var(--accent)!important}
+.mst-sec-btn.active[data-sec="5.WIP IN MOLDING"]{background:var(--accent-dim)!important;border-color:var(--accent)!important;color:var(--accent)!important}
+.mst-sec-btn.active[data-sec="4.WIP SAU PREFITTING"]{background:var(--orange-dim)!important;border-color:var(--orange)!important;color:var(--orange)!important}
+.mst-sec-btn.active[data-sec="3.WIP SAU LAMINATION"]{background:var(--warn-dim)!important;border-color:var(--warn)!important;color:var(--warn)!important}
+.mst-sec-btn.active[data-sec="2.MATERIAL CHƯA DÁN"]{background:rgba(255,107,157,.12)!important;border-color:#ff6b9d!important;color:#ff6b9d!important}
+.mst-sec-btn.active[data-sec="1.CHƯA LOAD MATERIAL"]{background:var(--green-dim)!important;border-color:var(--green)!important;color:var(--green)!important}
+
+/* Neon card wrapper cho mold summary */
+#mold-summary-body .mst-outer{
+  border:1px solid rgba(0,207,255,.15);
+  border-radius:10px;overflow:hidden;
+  box-shadow:0 0 0 1px rgba(0,207,255,.06), inset 0 1px 0 rgba(0,207,255,.08);
+}
+/* Scanline overlay effect */
+#mold-summary-body .mst-wrap::after{
+  content:'';display:block;pointer-events:none;
+}
+/* Glow on mold code text */
+.mst-table tbody td:first-child{
+  text-shadow:0 0 10px rgba(0,207,255,.4);
+}
 </style>
 
 <!-- ═══════════ PANEL: REQUEST MOLD ═══════════ -->
@@ -982,7 +1151,7 @@ let _sb = null;
 let _worker = localStorage.getItem('sc_worker') || '';
 let _shift  = localStorage.getItem('sc_shift')  || '';   // 'S1' | 'S2' | 'S3'
 const WIP_STATUSES = ['3.WIP SAU LAMINATION','4.WIP SAU PREFITTING','5.WIP IN MOLDING'];
-let _db = { orders:[], khuon_inventory:{}, logic_reduce_composite:{}, logic_reduce_index:{}, live_status:{} };
+let _db = { orders:[], allOrders:[], khuon_inventory:{}, logic_reduce_composite:{}, logic_reduce_index:{}, live_status:{}, live_by_mold:{} };
 let _rtChannel = null;
 let _parsed = null;   // current parsed QR result
 let _doneMap = {};    // sizeLabel → qty done (editable by user)
@@ -1047,6 +1216,7 @@ function subscribeRealtime() {
             if (p?.logic_reduce_index)     _db.logic_reduce_index     = p.logic_reduce_index;
           } else if (row.name === 'live' && p?.live_status) {
             _db.live_status = p.live_status;
+            if (p.live_by_mold) _db.live_by_mold = p.live_by_mold;
             // ── Auto-reload Trend Live khi V19 cập nhật live_status ──
             try {
               if (_trendLiveQuery && typeof loadTrendLive === 'function') {
@@ -1101,9 +1271,10 @@ async function loadDB() {
         setDot('logic','ok');
         document.getElementById('db-lbl-logic').textContent = `Logic: OK`;
       }
-      // live_status — dùng làm fallback cho findOvnInventory (deriveInvFromLiveStatus)
+      // live_status + live_by_mold
       if (row.name === 'live' && row.payload?.live_status) {
         _db.live_status = row.payload.live_status;
+        if (row.payload.live_by_mold) _db.live_by_mold = row.payload.live_by_mold;
       }
     }
     const khuonCount = Object.keys(_db.khuon_inventory).length;
@@ -1130,6 +1301,7 @@ async function loadDB() {
     } catch(_) {}
     // ── end merge ──
     try { renderLateOrders(); } catch(_) {}
+    try { renderMoldSummaryTable(); } catch(_) {}
 
   } catch(e) {
     setDot('sched','err'); setDot('logic','err');
@@ -4073,6 +4245,276 @@ function copySql(){
   if(navigator.clipboard){navigator.clipboard.writeText(sql).then(()=>toast('✅ Đã copy SQL','ok'));}
   else{toast('Chọn thủ công để copy','info');}
 }
+
+// ══════════════════════════════════════════════════════════
+// MOLD SUMMARY TABLE — QTY MOLD LIVE + WIP THEO SECTION
+// ══════════════════════════════════════════════════════════
+let _mstActiveSec = 'ALL';
+
+let _mstSearchQuery = '';
+
+function mstToggleSec(btn) {
+  document.querySelectorAll('.mst-sec-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  _mstActiveSec = btn.getAttribute('data-sec');
+  renderMoldSummaryTable();
+}
+
+function mstFilterMold(val) {
+  _mstSearchQuery = (val || '').trim().toUpperCase();
+  const clearBtn = document.getElementById('mst-search-clear');
+  if (clearBtn) clearBtn.style.display = _mstSearchQuery ? '' : 'none';
+  const inp = document.getElementById('mst-search-inp');
+  if (inp) inp.style.borderColor = _mstSearchQuery ? 'rgba(0,207,255,.6)' : 'rgba(0,207,255,.2)';
+  renderMoldSummaryTable();
+}
+
+// ── Tính tổng Max OVN từ khuon_inventory cho 1 mold ──
+// khuon_inventory[moldName] = { "3.5-4": 5, "4.5-5.5": 21, "6-7": 27 }
+// → sum tất cả values = tổng khuôn tồn kho OVN của mã đó
+function _mstOvnTotal(moldBase) {
+  const inv = _db.khuon_inventory || {};
+  if (!moldBase) return null;
+
+  // 1. Exact match
+  if (inv[moldBase]) {
+    const vals = Object.values(inv[moldBase]);
+    if (vals.length > 0) return vals.reduce((a, b) => a + (Number(b) || 0), 0);
+  }
+
+  // 2. Case-insensitive + normalize spaces
+  const normBase = String(moldBase).replace(/\s+/g,'').toUpperCase();
+  for (const [k, v] of Object.entries(inv)) {
+    if (String(k).replace(/\s+/g,'').toUpperCase() === normBase) {
+      const vals = Object.values(v);
+      if (vals.length > 0) return vals.reduce((a, b) => a + (Number(b) || 0), 0);
+    }
+  }
+
+  // 3. moldCodesMatch fallback (bỏ leading zeros)
+  for (const [k, v] of Object.entries(inv)) {
+    try {
+      if (typeof moldCodesMatch === 'function' && moldCodesMatch(moldBase, k)) {
+        const vals = Object.values(v);
+        if (vals.length > 0) return vals.reduce((a, b) => a + (Number(b) || 0), 0);
+      }
+    } catch(_) {}
+  }
+
+  return null; // không có trong khuon_inventory
+}
+
+// Lấy tổng slots từ live_by_mold cho 1 mold
+function _mstLiveSlots(moldBase) {
+  const key = String(moldBase || '').replace(/\s+/g,'').toUpperCase();
+  // Try exact key first
+  const lbm = _db.live_by_mold || {};
+  if (lbm[key]) return lbm[key].slots || 0;
+  // Partial match
+  for (const [k, v] of Object.entries(lbm)) {
+    if (k.toUpperCase().startsWith(key) || key.startsWith(k.toUpperCase())) {
+      return v.slots || 0;
+    }
+  }
+  // Fallback: count from live_status
+  let slots = 0;
+  for (const [, machine] of Object.entries(_db.live_status || {})) {
+    for (const [moldK, info] of Object.entries(machine?.molds || {})) {
+      const normK = moldK.replace(/\s+/g,'').toUpperCase();
+      if (normK === key || normK.startsWith(key) || key.startsWith(normK)) {
+        slots += (info.slots || info.qty_slots || 0);
+      }
+    }
+  }
+  return slots;
+}
+
+function renderMoldSummaryTable() {
+  const host = document.getElementById('mold-summary-body');
+  if (!host) return;
+
+  // Nguồn giống onLookup: allOrders (trendOrders từ V20 — mọi status)
+  const src = (_db.allOrders && _db.allOrders.length) ? _db.allOrders : _db.orders;
+  if (!src || !src.length) {
+    host.innerHTML = '<div class="empty" style="padding:24px 0"><div class="empty-icon">📦</div><div style="font-size:11px;color:var(--text3)">Chưa có dữ liệu — V20 cần import và sync lên Supabase</div></div>';
+    return;
+  }
+
+  // Columns definition (đúng thứ tự như ảnh)
+  const COLS = [
+    { key:'5.WIP IN MOLDING',      short:'In Molding',    color:'var(--accent)' },
+    { key:'4.WIP SAU PREFITTING',  short:'Sau Prefiting',  color:'var(--orange)' },
+    { key:'3.WIP SAU LAMINATION',  short:'Sau Lamination', color:'var(--warn)' },
+    { key:'2.MATERIAL CHƯA DÁN',  short:'Mat Chưa Dán',   color:'#ff6b9d' },
+    // Xử lý cả 2 variant: Excel thực tế dùng 'CHƯA', v20 code dùng 'CHỜ'
+    { key:'1.CHƯA LOAD MATERIAL',  short:'Chưa Load Mat',  color:'var(--green)', altKey:'1.CHỜ LOAD MATERIAL' },
+  ];
+
+  // Filter columns nếu chọn 1 section cụ thể
+  const activeCols = _mstActiveSec === 'ALL' ? COLS : COLS.filter(c => c.key === _mstActiveSec);
+
+  // Build moldMap: mold → { status → qty } — dùng sum(sizes) giống onLookup
+  const moldMap = {};
+  // Build altKey lookup map for fast matching
+  const altKeyMap = {};
+  for (const c of COLS) { if (c.altKey) altKeyMap[c.altKey] = c.key; }
+
+  for (const o of src) {
+    const mold = (o.mold_type || '').trim();
+    if (!mold) continue;
+    const stRaw = o.status || '';
+    // Normalize: map altKey → canonical key
+    const st = altKeyMap[stRaw] || stRaw;
+    if (!COLS.find(c => c.key === st)) continue;
+    if (!moldMap[mold]) moldMap[mold] = {};
+    // sum(sizes) như lookup — fallback qty_order nếu sizes trống
+    const sizeVals = Object.values(o.sizes || {}).filter(v => v > 0);
+    const qty = sizeVals.length > 0
+      ? sizeVals.reduce((a, b) => a + b, 0)
+      : (o.qty_order || 0);
+    moldMap[mold][st] = (moldMap[mold][st] || 0) + qty;
+  }
+
+  // Filter moldsToShow theo active section
+  let moldsToShow = Object.keys(moldMap);
+  if (_mstActiveSec !== 'ALL') {
+    moldsToShow = moldsToShow.filter(m => (moldMap[m][_mstActiveSec] || 0) > 0);
+  }
+
+  // Apply mold name search filter
+  if (_mstSearchQuery) {
+    moldsToShow = moldsToShow.filter(m => m.toUpperCase().includes(_mstSearchQuery));
+  }
+
+  if (!moldsToShow.length) {
+    const msg = _mstSearchQuery
+      ? `<div class="empty" style="padding:16px 0;font-size:11px;color:var(--text3)">Không tìm thấy khuôn "<b style="color:var(--accent)">${_mstSearchQuery}</b>"</div>`
+      : '<div class="empty" style="padding:16px 0;font-size:11px;color:var(--text3)">Không có dữ liệu cho section này</div>';
+    host.innerHTML = msg;
+    return;
+  }
+
+  // Sort: MOLDING desc → tổng desc
+  moldsToShow.sort((a, b) => {
+    const da = moldMap[a]['5.WIP IN MOLDING'] || 0;
+    const db2 = moldMap[b]['5.WIP IN MOLDING'] || 0;
+    if (db2 !== da) return db2 - da;
+    const ta = COLS.reduce((s, c) => s + (moldMap[a][c.key] || 0), 0);
+    const tb = COLS.reduce((s, c) => s + (moldMap[b][c.key] || 0), 0);
+    return tb - ta;
+  });
+
+  // Totals
+  const colTotals = {};
+  let grandTotal = 0, grandLive = 0, grandOvn = 0;
+  for (const c of activeCols) colTotals[c.key] = 0;
+
+  const fmt = n => n > 0 ? n.toLocaleString('en-US') : '<span class="mst-cell-zero">—</span>';
+
+  // Header
+  const theadCols = activeCols.map(c =>
+    `<th style="color:${c.color};min-width:72px">${c.short}</th>`
+  ).join('');
+
+  // Rows
+  const rows = moldsToShow.map(mold => {
+    const live = _mstLiveSlots(mold);
+    const ovn  = _mstOvnTotal(mold);
+    const remain = (ovn !== null && live >= 0) ? (ovn - live) : null;
+    const rowSum = activeCols.reduce((s, c) => s + (moldMap[mold][c.key] || 0), 0);
+    grandTotal += rowSum;
+    grandLive += live;
+    if (ovn !== null) grandOvn += ovn;
+
+    const cells = activeCols.map(c => {
+      const v = moldMap[mold][c.key] || 0;
+      colTotals[c.key] += v;
+      if (!v) return `<td class="mst-col-${c.key==='5.WIP IN MOLDING'?'':'other'}"><span class="mst-cell-zero">—</span></td>`;
+      return `<td style="color:${c.color};font-weight:700">${v.toLocaleString('en-US')}</td>`;
+    }).join('');
+
+    const ovnCell = ovn !== null
+      ? `<td class="mst-col-ovn"><span style="color:#b06cff;font-weight:800">${ovn.toLocaleString('en-US')}</span></td>`
+      : `<td class="mst-col-ovn"><span class="mst-cell-zero">—</span></td>`;
+    const liveCell = live > 0
+      ? `<td class="mst-col-live"><span class="mst-cell-live">${live.toLocaleString('en-US')}</span></td>`
+      : `<td class="mst-col-live"><span class="mst-cell-zero">—</span></td>`;
+    const remainColor = remain === null ? '' : remain > 0 ? 'color:#00cfff;font-weight:800' : remain === 0 ? 'color:var(--warn);font-weight:800' : 'color:var(--red);font-weight:800';
+    const remainCell = remain !== null
+      ? `<td class="mst-col-remain"><span style="${remainColor}">${remain > 0 ? remain.toLocaleString('en-US') : remain === 0 ? '0' : remain.toLocaleString('en-US')}</span></td>`
+      : `<td class="mst-col-remain"><span class="mst-cell-zero">—</span></td>`;
+
+    const sumCell = rowSum > 0
+      ? `<td class="mst-col-sum" style="font-weight:800;color:var(--purple)">${rowSum.toLocaleString('en-US')}</td>`
+      : `<td class="mst-col-sum"><span class="mst-cell-zero">—</span></td>`;
+
+    return `<tr>
+      <td title="${mold}">${_mstSearchQuery && mold.toUpperCase().includes(_mstSearchQuery)
+        ? mold.replace(new RegExp('('+_mstSearchQuery.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')','gi'), '<mark style="background:rgba(0,207,255,.25);color:var(--accent);border-radius:2px;padding:0 1px">$1</mark>')
+        : mold
+      }</td>
+      ${ovnCell}
+      ${liveCell}
+      ${remainCell}
+      ${cells}
+      ${sumCell}
+    </tr>`;
+  }).join('');
+
+  // Footer
+  const footCells = activeCols.map(c =>
+    `<td style="color:${c.color}">${(colTotals[c.key]||0).toLocaleString('en-US')}</td>`
+  ).join('');
+
+  const totalCols = 1 + 1 + activeCols.length + 1; // MOLD + LIVE + cols + SUM
+
+  const html = `
+    <div class="mst-outer">
+      <div class="mst-scroll-hint" id="mst-scroll-hint"><span>›</span></div>
+      <div class="mst-wrap" id="mst-wrap" onscroll="
+        const sh=document.getElementById('mst-scroll-hint');
+        if(sh){const w=this;sh.style.display=(w.scrollLeft+w.clientWidth>=w.scrollWidth-8)?'none':'flex';}
+      ">
+        <table class="mst-table">
+          <thead>
+            <tr>
+              <th style="text-align:left;min-width:82px">MOLD</th>
+              <th class="mst-col-ovn" style="color:#b06cff;min-width:56px">Max OVN<br><span style="font-size:8px;opacity:.55;font-weight:400">(khuôn)</span></th>
+              <th class="mst-col-live" style="color:var(--green);min-width:64px">Mold Live<br><span style="font-size:8px;opacity:.55;font-weight:400">(slots)</span></th>
+              <th class="mst-col-remain" style="color:#00cfff;min-width:56px">Còn lại<br><span style="font-size:8px;opacity:.55;font-weight:400">(OVN−Live)</span></th>
+              ${theadCols}
+              <th class="mst-col-sum" style="color:var(--purple);min-width:64px">SUM</th>
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+          <tfoot>
+            <tr>
+              <td style="color:var(--text2);font-size:10px">TOTAL <span style="opacity:.5">${moldsToShow.length}</span></td>
+              <td class="mst-col-ovn" style="color:#b06cff">${grandOvn > 0 ? grandOvn.toLocaleString('en-US') : '—'}</td>
+              <td class="mst-col-live" style="color:var(--green)">${grandLive.toLocaleString('en-US')}</td>
+              <td class="mst-col-remain" style="color:#00cfff">${grandOvn > 0 ? (grandOvn - grandLive).toLocaleString('en-US') : '—'}</td>
+              ${footCells}
+              <td class="mst-col-sum" style="color:var(--purple)">${grandTotal.toLocaleString('en-US')}</td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </div>
+    <div style="font-size:9px;color:var(--text3);margin-top:6px;font-family:var(--mono);display:flex;align-items:center;gap:6px">
+      <span>← swipe để xem đủ cột</span>
+      <span style="flex:1"></span>
+      <span style="color:var(--text3)">${moldsToShow.length} mold · allOrders V20</span>
+    </div>`;
+
+  host.innerHTML = html;
+}
+
+// Auto-render when entering trend tab
+const _origSetTab = window.setTab;
+if (typeof setTab === 'function') {
+  // patch will be done inline via nav onclick
+}
+// ── end mold summary table ──
 </script>
 </body>
 </html>
